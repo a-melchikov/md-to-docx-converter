@@ -1,15 +1,15 @@
 export interface SourcePosition {
-  readonly line?: number;
-  readonly column?: number;
-  readonly offset?: number;
+  readonly line?: number | undefined;
+  readonly column?: number | undefined;
+  readonly offset?: number | undefined;
 }
 
 export interface SourceLocation {
-  readonly file?: string;
-  readonly start?: SourcePosition;
-  readonly end?: SourcePosition;
-  readonly offset?: number;
-  readonly length?: number;
+  readonly file?: string | undefined;
+  readonly start?: SourcePosition | undefined;
+  readonly end?: SourcePosition | undefined;
+  readonly offset?: number | undefined;
+  readonly length?: number | undefined;
 }
 
 export interface DocumentPathRootSegment {

@@ -17,6 +17,11 @@ export type KnownDiagnosticCode =
   | "config.validation.minimum"
   | "config.validation.maximum"
   | "config.validation.unknown"
+  | "markdown.unsupportedNode"
+  | "markdown.unsupportedHtml"
+  | "markdown.invalidInput"
+  | "markdown.parseError"
+  | "markdown.fallbackText"
   | "asset-warning"
   | "preview-fidelity-warning";
 
@@ -37,18 +42,18 @@ export interface Diagnostic {
   readonly severity: DiagnosticSeverity;
   readonly code: DiagnosticCode;
   readonly message: string;
-  readonly source?: SourceLocation;
-  readonly path?: DocumentPath;
-  readonly metadata?: DiagnosticMetadata;
+  readonly source?: SourceLocation | undefined;
+  readonly path?: DocumentPath | undefined;
+  readonly metadata?: DiagnosticMetadata | undefined;
 }
 
 export interface CreateDiagnosticInput {
   readonly severity: DiagnosticSeverity;
   readonly code: DiagnosticCode;
   readonly message: string;
-  readonly source?: SourceLocation;
-  readonly path?: DocumentPath;
-  readonly metadata?: DiagnosticMetadata;
+  readonly source?: SourceLocation | undefined;
+  readonly path?: DocumentPath | undefined;
+  readonly metadata?: DiagnosticMetadata | undefined;
 }
 
 const diagnosticSeverities = new Set<DiagnosticSeverity>([

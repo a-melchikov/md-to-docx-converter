@@ -502,6 +502,52 @@ unknown config
 
 JSON mode и visual UI должны использовать одну модель `ConversionConfig`. Endpoint `POST /api/v1/configs/validate` реализуется отдельно в `MVP-11`; текущий слой только предоставляет общий validation API для будущего API endpoint и frontend state.
 
+## Markdown parser
+
+`packages/md-parser` реализует MVP-парсинг Markdown и преобразует CommonMark/GFM в intermediate document model из `packages/domain`.
+
+Pipeline:
+
+```text
+Markdown string
+  -> unified/remark
+  -> mdast
+  -> intermediate document model
+  -> diagnostics
+```
+
+Зависимости:
+
+- `packages/md-parser -> packages/domain`;
+- `packages/md-parser -> unified`;
+- `packages/md-parser -> remark-parse`;
+- `packages/md-parser -> remark-gfm`.
+
+Пакет не зависит от:
+
+- `apps/*`;
+- `packages/style-engine`;
+- `packages/docx-adapter`;
+- `packages/html-preview`;
+- React/Vite;
+- Fastify/API runtime.
+
+Parser поддерживает два профиля: `commonmark` и `commonmark-gfm`. Для `commonmark-gfm` подключается `remark-gfm`; для `commonmark` GFM-расширения не включаются. Результат всегда возвращается как `ParseMarkdownResult` с `document` и `diagnostics`, без обращения к frontend/backend слоям.
+
+Raw HTML policy:
+
+- `warn-and-skip` - HTML пропускается, создается warning diagnostic;
+- `fallback-text` - HTML-теги удаляются безопасным plain-text fallback без DOM/API выполнения;
+- `error` - создается error diagnostic, небезопасное преобразование не выполняется.
+
+Unsupported node policy:
+
+- `warn-and-skip` - node пропускается с warning diagnostic;
+- `fallback-text` - parser пытается извлечь plain text и вставить его в document model;
+- `error` - создается error diagnostic и сохраняется unsupported node marker.
+
+Source mapping берется из `mdast.position` и переносится в собственные типы `SourceLocation` из `packages/domain`: file name, start/end line/column и offsets. Если position отсутствует, parser не падает и возвращает node без `source`.
+
 ## Предупреждения и диагностика
 
 Единая модель diagnostics должна поддерживать:
