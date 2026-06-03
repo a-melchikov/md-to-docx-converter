@@ -36,6 +36,16 @@ export type KnownDiagnosticCode =
   | "docx.node.unsupported"
   | "docx.generation.failed"
   | "docx.numbering.fallback"
+  | "preview.fidelity.fastMode"
+  | "preview.fidelity.pageBreakApproximation"
+  | "preview.fidelity.fontFallback"
+  | "preview.fidelity.imageApproximation"
+  | "preview.fidelity.unsupportedProperty"
+  | "preview.fidelity.tableLayoutApproximation"
+  | "preview.style.fallback"
+  | "preview.node.unsupported"
+  | "preview.security.unsafeUrl"
+  | "preview.security.escapedHtml"
   | "asset-warning"
   | "preview-fidelity-warning";
 

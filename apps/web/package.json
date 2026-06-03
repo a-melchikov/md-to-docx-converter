@@ -10,6 +10,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@md-to-docx/config-schema": "workspace:*"
+    "@md-to-docx/config-schema": "workspace:*",
+    "@md-to-docx/html-preview": "workspace:*"
   }
 }

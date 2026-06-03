@@ -675,6 +675,57 @@ MVP limitations:
 - floating images, comments, bookmarks, fields, footnotes/endnotes и advanced OOXML overrides остаются для R2/R3;
 - image dimensions задаются безопасными defaults/resolved limits, без чтения размеров файла и без внешнего I/O.
 
+## HTML preview adapter
+
+`packages/html-preview` строит быстрый docx-like preview из `ResolvedDocument`, той же модели, которую использует DOCX adapter.
+
+Pipeline:
+
+```text
+ResolvedDocument
+  -> HTML preview adapter
+  -> html + css + Diagnostic[]
+```
+
+Зависимости:
+
+- `packages/html-preview -> packages/domain`.
+
+Пакет не зависит от:
+
+- raw Markdown;
+- `docx`;
+- Mammoth;
+- `docx-preview`;
+- React/Vite/browser DOM;
+- Fastify/API runtime;
+- `apps/*`.
+
+Preview strategy:
+
+- результат возвращается как serializable `{ html, css, diagnostics, metadata }`;
+- page boxes строятся через `.md2docx-preview`, `.md2docx-page`, `.md2docx-page-content`;
+- page size и margins берутся из resolved document properties;
+- zoom применяется через CSS variable `--preview-zoom` и не меняет resolved values;
+- typography, paragraph spacing, indentation, tables, lists, links, images, code и thematic breaks маппятся из resolved style properties в CSS;
+- preview не является accurate Word renderer и не претендует на точное совпадение layout Microsoft Word.
+
+Fast preview limitations:
+
+- page breaks approximate;
+- table layout approximate;
+- image dimensions are approximate and use resolved limits/defaults;
+- unsupported resolved nodes render fallback text and diagnostics;
+- accurate preview через `docx-preview` или DOCX/PDF pipeline выносится в R2.
+
+Security policy:
+
+- пользовательский text/code/link text/alt/title/table content всегда HTML-экранируется;
+- raw HTML из Markdown не исполняется и не вставляется как HTML;
+- link/image URLs проходят allowlist protocol policy: `http:`, `https:`, `mailto:`, `tel:` и относительные ссылки;
+- unsafe URL renderится как plain text/image placeholder и возвращает `preview.security.unsafeUrl`;
+- escaping возвращает `preview.security.escapedHtml`, чтобы UI мог показать предупреждение.
+
 ## Предупреждения и диагностика
 
 Единая модель diagnostics должна поддерживать:

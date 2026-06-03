@@ -38,6 +38,9 @@ importers:
       '@md-to-docx/config-schema':
         specifier: workspace:*
         version: link:../../packages/config-schema
+      '@md-to-docx/html-preview':
+        specifier: workspace:*
+        version: link:../../packages/html-preview
 
   packages/config-schema:
     dependencies:
@@ -63,7 +66,11 @@ importers:
 
   packages/domain: {}
 
-  packages/html-preview: {}
+  packages/html-preview:
+    dependencies:
+      '@md-to-docx/domain':
+        specifier: workspace:*
+        version: link:../domain
 
   packages/md-parser:
     dependencies:
