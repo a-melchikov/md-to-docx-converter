@@ -4,10 +4,16 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
+    "lint": "pnpm -r --if-present lint",
     "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
     "build": "pnpm -r --if-present build"
   },
   "devDependencies": {
-    "typescript": "^5.8.3"
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.60.1",
+    "vitest": "^2.1.9"
   }
 }

@@ -1,0 +1,24 @@
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+
+export default [
+  {
+    ignores: [
+      "**/coverage/**",
+      "**/dist/**",
+      "**/node_modules/**",
+      "**/.cache/**",
+      "**/.turbo/**",
+      "**/.vite/**"
+    ]
+  },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  {
+    files: ["**/*.ts"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module"
+    }
+  }
+];
