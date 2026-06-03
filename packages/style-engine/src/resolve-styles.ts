@@ -221,6 +221,7 @@ const resolveBlockNode = (
         ...nodeBase(node),
         style: styleForBlock(node, context),
         src: node.src,
+        ...(node.assetId === undefined ? {} : { assetId: node.assetId }),
         ...(node.alt === undefined ? {} : { alt: node.alt }),
         ...(node.title === undefined ? {} : { title: node.title })
       };
@@ -409,6 +410,7 @@ const resolveInlineNode = (
         ...nodeBase(node),
         style,
         src: node.src,
+        ...(node.assetId === undefined ? {} : { assetId: node.assetId }),
         ...(node.alt === undefined ? {} : { alt: node.alt }),
         ...(node.title === undefined ? {} : { title: node.title })
       };

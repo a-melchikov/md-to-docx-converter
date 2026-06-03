@@ -610,6 +610,71 @@ Canonical units:
 - numeric config fields с суффиксами `Twip`, `HalfPt`, `Emu`, `Pct` преобразуются в branded unit types на этапе style resolution;
 - conversion helpers для pt/cm/mm/in/px/percent покрываются unit tests.
 
+## DOCX adapter
+
+`packages/docx-adapter` преобразует `ResolvedDocument` в `.docx` artifact через npm-пакет `docx`.
+
+Pipeline:
+
+```text
+ResolvedDocument
+  -> DOCX adapter
+  -> .docx buffer + Diagnostic[]
+```
+
+Зависимости:
+
+- `packages/docx-adapter -> packages/domain`;
+- `packages/docx-adapter -> docx`.
+
+Пакет не зависит от:
+
+- `apps/api`;
+- `apps/web`;
+- Fastify/API runtime;
+- React/Vite/browser DOM;
+- Markdown parser;
+- Style Engine implementation.
+
+Правила генерации:
+
+- adapter не вычисляет style cascade заново и читает только resolved style model;
+- OOXML package создается через публичные классы `docx`: `Document`, `Paragraph`, `TextRun`, `Table`, `ImageRun`, `ExternalHyperlink`, `Packer`;
+- `document.xml`, `styles.xml`, `numbering.xml` и relationships не собираются ручной конкатенацией XML-строк;
+- fallback допускается только для неполной resolved model или unsupported nodes и сопровождается diagnostics.
+
+Поддерживаемые MVP mappings:
+
+- paragraph/heading/code block/blockquote/thematic break;
+- text, strong, emphasis, strikethrough, inline code, hard/soft breaks;
+- external links через relationship;
+- ordered/unordered/nested lists через numbering config;
+- tables, rows и cells;
+- image block/inline image при наличии безопасно переданных binary assets или поддержанного data URI.
+
+Assets strategy:
+
+- adapter не скачивает изображения по URL;
+- adapter не читает локальные файлы;
+- adapter не принимает произвольные file paths как источник данных;
+- binary assets передаются только через `GenerateDocxInput.assets`;
+- image node может ссылаться на `assetId`; если asset отсутствует, adapter возвращает `docx.image.missingAsset` и использует alt-text fallback;
+- для MVP поддерживаются PNG/JPEG; неподдержанный формат возвращает diagnostic и не прерывает генерацию.
+
+Golden tests:
+
+- DOCX открывается как ZIP;
+- проверяется наличие `[Content_Types].xml`, `_rels/.rels`, `word/document.xml`, `word/_rels/document.xml.rels`, `word/styles.xml`, `word/numbering.xml`;
+- для images проверяется наличие `word/media/*`;
+- для links проверяется external hyperlink relationship;
+- XML не сравнивается целиком, чтобы тесты не зависели от порядка атрибутов `docx`.
+
+MVP limitations:
+
+- типографика Word не считается пиксельно точной;
+- floating images, comments, bookmarks, fields, footnotes/endnotes и advanced OOXML overrides остаются для R2/R3;
+- image dimensions задаются безопасными defaults/resolved limits, без чтения размеров файла и без внешнего I/O.
+
 ## Предупреждения и диагностика
 
 Единая модель diagnostics должна поддерживать:

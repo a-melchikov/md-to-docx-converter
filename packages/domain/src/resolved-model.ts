@@ -232,6 +232,7 @@ export interface ResolvedTableCellNode extends ResolvedNodeBase<"table-cell"> {
 export interface ResolvedImageBlockNode
   extends ResolvedNodeBase<"image-block"> {
   readonly src: string;
+  readonly assetId?: string | undefined;
   readonly alt?: string | undefined;
   readonly title?: string | undefined;
 }
@@ -289,6 +290,7 @@ export interface ResolvedLinkNode extends ResolvedNodeBase<"link"> {
 export interface ResolvedInlineImageNode
   extends ResolvedNodeBase<"inline-image"> {
   readonly src: string;
+  readonly assetId?: string | undefined;
   readonly alt?: string | undefined;
   readonly title?: string | undefined;
 }

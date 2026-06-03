@@ -28,6 +28,14 @@ export type KnownDiagnosticCode =
   | "style.unsupportedNode"
   | "style.invalidXmlCharacter"
   | "style.unitConversionError"
+  | "docx.image.missingAsset"
+  | "docx.image.unsupportedFormat"
+  | "docx.image.invalidData"
+  | "docx.style.fallback"
+  | "docx.style.unsupportedProperty"
+  | "docx.node.unsupported"
+  | "docx.generation.failed"
+  | "docx.numbering.fallback"
   | "asset-warning"
   | "preview-fidelity-warning";
 

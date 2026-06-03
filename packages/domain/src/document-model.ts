@@ -75,6 +75,7 @@ export interface TableCellNode extends DocumentNodeBase<"table-cell"> {
 
 export interface ImageBlockNode extends DocumentNodeBase<"image-block"> {
   readonly src: string;
+  readonly assetId?: string | undefined;
   readonly alt?: string | undefined;
   readonly title?: string | undefined;
 }
@@ -129,6 +130,7 @@ export interface LinkNode extends DocumentNodeBase<"link"> {
 
 export interface InlineImageNode extends DocumentNodeBase<"inline-image"> {
   readonly src: string;
+  readonly assetId?: string | undefined;
   readonly alt?: string | undefined;
   readonly title?: string | undefined;
 }
