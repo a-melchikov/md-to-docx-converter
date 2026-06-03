@@ -9,6 +9,14 @@ export type KnownDiagnosticCode =
   | "invalid-xml-character"
   | "fallback-style"
   | "config-validation-error"
+  | "config.validation.required"
+  | "config.validation.additionalProperty"
+  | "config.validation.enum"
+  | "config.validation.type"
+  | "config.validation.pattern"
+  | "config.validation.minimum"
+  | "config.validation.maximum"
+  | "config.validation.unknown"
   | "asset-warning"
   | "preview-fidelity-warning";
 

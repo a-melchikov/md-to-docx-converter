@@ -1,11 +1,15 @@
 export { defaultConfig } from "./default-config.js";
-export { converterConfigSchema } from "./schema.js";
+export {
+  converterConfigSchema,
+  converterConfigSchema as configJsonSchema
+} from "./schema.js";
 export type {
   AdvancedConfig,
   BorderProperties,
   BorderStyle,
   ColumnsConfig,
   ConfigMeta,
+  ConverterConfig as ConversionConfig,
   ConverterConfig,
   DefaultsConfig,
   DocumentConfig,
@@ -42,7 +46,14 @@ export type {
   UnsupportedNodePolicy
 } from "./types.js";
 export type {
+  ConfigParseResult,
+  ConfigValidationResult,
   JsonSchemaValidationError,
   ValidationResult
 } from "./validation.js";
-export { validateConfigWithJsonSchema } from "./validation.js";
+export {
+  isValidConfig,
+  parseConfig,
+  validateConfig,
+  validateConfigWithJsonSchema
+} from "./validation.js";

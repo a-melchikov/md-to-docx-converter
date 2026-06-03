@@ -27,12 +27,23 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(vite@8.0.16)
 
-  apps/api: {}
+  apps/api:
+    dependencies:
+      '@md-to-docx/config-schema':
+        specifier: workspace:*
+        version: link:../../packages/config-schema
 
-  apps/web: {}
+  apps/web:
+    dependencies:
+      '@md-to-docx/config-schema':
+        specifier: workspace:*
+        version: link:../../packages/config-schema
 
   packages/config-schema:
     dependencies:
+      '@md-to-docx/domain':
+        specifier: workspace:*
+        version: link:../domain
       ajv:
         specifier: ^8.20.0
         version: 8.20.0

@@ -489,6 +489,19 @@ Canonical units:
 
 По умолчанию schema запрещает неизвестные поля через `additionalProperties: false`. Исключения допустимы только при явной архитектурной причине. `advanced.ooxmlOverrides` в MVP описан как пустой объект с `additionalProperties: false`; его расширение относится к R3.
 
+Runtime validation:
+
+```text
+unknown config
+  -> validateConfig / parseConfig
+  -> ConfigValidationResult / ConfigParseResult
+  -> Diagnostic[]
+```
+
+`packages/config-schema` является единственным источником runtime validation. В MVP-05 validation строится на JSON Schema через Ajv Draft 2020-12; ошибки schema validation маппятся в общий `Diagnostic[]` из `packages/domain`. `apps/api` и `apps/web` не имеют собственных независимых схем, не копируют JSON Schema и не создают отдельные Zod-модели. Они импортируют `validateConfig`, `parseConfig`, `isValidConfig`, `defaultConfig` и `configJsonSchema` из `@md-to-docx/config-schema`.
+
+JSON mode и visual UI должны использовать одну модель `ConversionConfig`. Endpoint `POST /api/v1/configs/validate` реализуется отдельно в `MVP-11`; текущий слой только предоставляет общий validation API для будущего API endpoint и frontend state.
+
 ## Предупреждения и диагностика
 
 Единая модель diagnostics должна поддерживать:

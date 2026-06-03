@@ -1,0 +1,91 @@
+{
+  "version": "1.0.0",
+  "input": {
+    "markdownProfile": "commonmark-gfm",
+    "enableHtmlSubset": "yes",
+    "enableMermaid": false,
+    "htmlPolicy": "warn-and-skip",
+    "onUnsupportedNode": "warn-and-skip",
+    "onInvalidXmlChar": "warn-and-skip"
+  },
+  "document": {
+    "page": {
+      "size": {
+        "preset": "A4",
+        "orientation": "portrait"
+      },
+      "margin": {
+        "topTwip": 1440,
+        "rightTwip": 1440,
+        "bottomTwip": 1440,
+        "leftTwip": 1440
+      }
+    },
+    "columns": {
+      "count": 1
+    },
+    "metadata": {}
+  },
+  "defaults": {
+    "paragraph": {},
+    "run": {},
+    "table": {},
+    "image": {}
+  },
+  "styles": {
+    "heading1": {},
+    "heading2": {},
+    "heading3": {},
+    "heading4": {},
+    "heading5": {},
+    "heading6": {},
+    "paragraph": {},
+    "blockquote": {},
+    "inlineCode": {},
+    "codeBlock": {},
+    "link": {},
+    "table": {},
+    "tableHeader": {},
+    "tableCell": {},
+    "orderedList": {},
+    "unorderedList": {},
+    "listItem": {},
+    "image": {},
+    "thematicBreak": {}
+  },
+  "numbering": {
+    "unordered": {
+      "levels": [
+        {
+          "level": 0,
+          "format": "bullet",
+          "text": "\u2022",
+          "leftTwip": 720,
+          "hangingTwip": 360
+        }
+      ]
+    },
+    "ordered": {
+      "levels": [
+        {
+          "level": 0,
+          "format": "decimal",
+          "text": "%1.",
+          "start": 1,
+          "leftTwip": 720,
+          "hangingTwip": 360
+        }
+      ]
+    }
+  },
+  "headersFooters": {
+    "enabled": false,
+    "pageNumberPlaceholderPolicy": "disabled"
+  },
+  "advanced": {
+    "emitBookmarks": false,
+    "emitComments": false,
+    "trackRevisions": false,
+    "ooxmlOverrides": {}
+  }
+}
