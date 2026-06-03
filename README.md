@@ -46,6 +46,21 @@ docs/PROJECT_SPEC.md
 
 Этот файл является главным источником требований для проектирования и реализации.
 
+## Monorepo skeleton
+
+Текущий skeleton использует `pnpm` и TypeScript strict mode.
+
+Команды проверки skeleton:
+
+```text
+pnpm install
+pnpm -r exec pwd
+pnpm typecheck
+pnpm build
+```
+
+На этапе skeleton `apps/web`, `apps/api` и `packages/*` содержат только минимальные TypeScript entrypoints. Реализация frontend, backend, Markdown parsing, Style Engine, DOCX generation, preview и Docker/nginx deployment выполняется отдельными задачами из `docs/TASKS.md`.
+
 ## Статус
 
 Проект находится на этапе проектирования и начальной реализации.
