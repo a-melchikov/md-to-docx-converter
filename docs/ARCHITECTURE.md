@@ -178,6 +178,60 @@ Backend на Node.js + TypeScript + Fastify.
 
 Пакет не должен зависеть от `apps/*`, `docx`, React или Fastify.
 
+## Domain model
+
+`packages/domain` является независимым базовым пакетом monorepo. Он задает общие типы и минимальные безопасные helper-функции, которые используются остальными пакетами, но сам не зависит от frontend, backend, parser или output adapters.
+
+Разрешено зависеть от `packages/domain`:
+
+- `apps/web`;
+- `apps/api`;
+- `packages/config-schema`;
+- `packages/md-parser`;
+- `packages/style-engine`;
+- `packages/docx-adapter`;
+- `packages/html-preview`.
+
+Запрещено:
+
+- `packages/domain -> apps/*`;
+- `packages/domain -> packages/md-parser`;
+- `packages/domain -> packages/style-engine`;
+- `packages/domain -> packages/docx-adapter`;
+- `packages/domain -> packages/html-preview`;
+- `packages/domain -> React/Vite/Fastify/docx/unified/remark`;
+- любые обратные зависимости от domain к adapter-пакетам или infra.
+
+Domain model включает четыре базовых слоя.
+
+Intermediate document model:
+
+- платформенно нейтральный root `document`;
+- block-level nodes для paragraph, heading `h1-h6`, blockquote, unordered/ordered lists, list items, code blocks, thematic break, tables, table rows/cells, block images и unsupported blocks;
+- inline-level nodes для text, strong, emphasis, strikethrough, inline code, links, inline images, hard/soft breaks и unsupported inline nodes;
+- типобезопасные `attrs`/`metadata` без `any`;
+- отсутствие прямых `mdast`, DOM, `docx` или framework-specific типов.
+
+Diagnostics:
+
+- severity: `info`, `warning`, `error`;
+- коды для unsupported Markdown node, invalid XML character, fallback style, config validation error, asset warning и preview fidelity warning;
+- сообщение, source mapping, path до intermediate node и безопасный metadata record.
+
+Units:
+
+- branded-типы `Twip`, `HalfPoint`, `Emu`, `Pct`;
+- factory-функции для запрета смешивания единиц;
+- базовая runtime validation для finite/non-negative значений;
+- простые conversion helpers для pt/in/cm/px.
+
+Source mapping:
+
+- исходный файл;
+- line/column;
+- offset/length;
+- типизированные path segments, которые можно отобразить как `document.children[3].children[0]`.
+
 ### `packages/config-schema`
 
 JSON Schema и TypeScript/Zod-слой конфигурации.
