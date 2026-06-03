@@ -441,6 +441,8 @@ R2/R3 расширения:
 
 ## Конфигурация
 
+`packages/config-schema` содержит переносимую JSON Schema Draft 2020-12 для конфигурации Markdown -> DOCX. Эта schema используется как единый контракт для backend validation, frontend JSON mode, импорта/экспорта настроек и default config.
+
 Top-level структура конфигурации:
 
 ```json
@@ -464,6 +466,28 @@ Top-level структура конфигурации:
 - JSON mode обязан поддерживать round-trip с visual mode;
 - неизвестные или неподдерживаемые настройки не должны молча теряться;
 - advanced overrides доступны только как расширенный механизм, не как основа MVP.
+- Zod/runtime validation слой добавляется отдельной задачей `MVP-05`; `MVP-04` ограничивается JSON Schema, default config, fixtures и минимальным schema validation helper.
+
+Top-level поля:
+
+- `version` - semver-like версия конфигурации;
+- `meta` - необязательные сведения о preset/config: name, description, locale, author, createdAt, updatedAt;
+- `input` - Markdown profile и политики обработки HTML, unsupported nodes и invalid XML chars;
+- `document` - page size, orientation, margins, columns и metadata;
+- `defaults` - базовые paragraph/run/table/image defaults;
+- `styles` - named styles для MVP Markdown elements;
+- `numbering` - ordered/unordered list presets и nested levels;
+- `headersFooters` - schema-level структура headers/footers для будущего R2;
+- `advanced` - flags и строго ограниченный `ooxmlOverrides`.
+
+Canonical units:
+
+- поля с суффиксом `Twip` хранят DOCX twips;
+- поля с суффиксом `HalfPt` хранят half-points;
+- поля с суффиксом `Emu` хранят EMU;
+- поля с суффиксом `Pct` хранят проценты с ограничениями schema.
+
+По умолчанию schema запрещает неизвестные поля через `additionalProperties: false`. Исключения допустимы только при явной архитектурной причине. `advanced.ooxmlOverrides` в MVP описан как пустой объект с `additionalProperties: false`; его расширение относится к R3.
 
 ## Предупреждения и диагностика
 

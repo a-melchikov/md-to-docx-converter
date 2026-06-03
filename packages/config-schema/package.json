@@ -10,9 +10,12 @@
     }
   },
   "scripts": {
-    "lint": "eslint src --max-warnings=0",
+    "lint": "eslint src tests --max-warnings=0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
     "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "ajv": "^8.20.0"
   }
 }
