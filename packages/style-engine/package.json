@@ -5,14 +5,18 @@
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./src/index.ts",
       "import": "./dist/index.js"
     }
   },
   "scripts": {
-    "lint": "eslint src --max-warnings=0",
+    "lint": "eslint src tests --max-warnings=0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
     "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@md-to-docx/config-schema": "workspace:*",
+    "@md-to-docx/domain": "workspace:*"
   }
 }

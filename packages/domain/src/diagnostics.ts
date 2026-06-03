@@ -22,6 +22,12 @@ export type KnownDiagnosticCode =
   | "markdown.invalidInput"
   | "markdown.parseError"
   | "markdown.fallbackText"
+  | "style.fallback"
+  | "style.missing"
+  | "style.invalid"
+  | "style.unsupportedNode"
+  | "style.invalidXmlCharacter"
+  | "style.unitConversionError"
   | "asset-warning"
   | "preview-fidelity-warning";
 

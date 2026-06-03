@@ -79,7 +79,14 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
 
-  packages/style-engine: {}
+  packages/style-engine:
+    dependencies:
+      '@md-to-docx/config-schema':
+        specifier: workspace:*
+        version: link:../config-schema
+      '@md-to-docx/domain':
+        specifier: workspace:*
+        version: link:../domain
 
 packages:
 

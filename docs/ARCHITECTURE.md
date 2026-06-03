@@ -548,6 +548,68 @@ Unsupported node policy:
 
 Source mapping берется из `mdast.position` и переносится в собственные типы `SourceLocation` из `packages/domain`: file name, start/end line/column и offsets. Если position отсутствует, parser не падает и возвращает node без `source`.
 
+## Style Engine
+
+`packages/style-engine` применяет `ConversionConfig` к intermediate document model и возвращает единый resolved style model для будущих output adapters.
+
+Pipeline:
+
+```text
+IntermediateDocument
+  -> Style Engine
+  -> ResolvedDocument + Diagnostic[]
+  -> DOCX adapter / HTML preview adapter
+```
+
+Зависимости:
+
+- `packages/style-engine -> packages/domain`;
+- `packages/style-engine -> packages/config-schema`.
+
+Пакет не зависит от:
+
+- `docx`;
+- `packages/docx-adapter`;
+- `packages/html-preview`;
+- `apps/*`;
+- React/Vite;
+- Fastify/API runtime.
+
+Каскад стилей:
+
+```text
+defaults -> named style -> markdown mapping -> direct override
+```
+
+Правила каскада:
+
+- более поздний уровень переопределяет более ранний;
+- `undefined` не затирает уже resolved значение;
+- named style выбирается по Markdown element mapping: `heading1..heading6`, `paragraph`, `inlineCode`, `codeBlock`, `table`, `tableCell`, `image` и другие MVP style keys;
+- markdown mapping добавляет intrinsic overrides для Markdown semantics, например `strong -> bold`, `emphasis -> italic`, `strikethrough -> strike`;
+- direct override допускается только как безопасно разобранный `attrs.style` intermediate node.
+
+Resolved model хранится в `packages/domain` и не привязан к `docx` или CSS. Он содержит исходную структуру документа, source/path, resolved paragraph/run/table/image properties, border/shading, document page properties и numbering metadata. DOCX adapter и HTML preview adapter должны читать эту модель, а не повторять style resolution.
+
+Fallback strategy:
+
+- отсутствующий style key не прерывает обработку;
+- некорректный style definition заменяется безопасным fallback;
+- unsupported intermediate node сохраняется как resolved unsupported node;
+- каждый fallback возвращает warning diagnostic с кодами `style.missing`, `style.invalid`, `style.fallback` или `style.unsupportedNode`.
+
+Invalid XML character policy берется из `config.input.onInvalidXmlChar`:
+
+- `warn-and-skip` - удалить недопустимый XML 1.0 control character и вернуть warning;
+- `error` - удалить недопустимый символ, вернуть error diagnostic и сохранить source/path;
+- `replace-uFFFD` - заменить символ на `U+FFFD` и вернуть warning.
+
+Canonical units:
+
+- `Twip`, `HalfPoint`, `Emu`, `Pct` берутся из `packages/domain`;
+- numeric config fields с суффиксами `Twip`, `HalfPt`, `Emu`, `Pct` преобразуются в branded unit types на этапе style resolution;
+- conversion helpers для pt/cm/mm/in/px/percent покрываются unit tests.
+
 ## Предупреждения и диагностика
 
 Единая модель diagnostics должна поддерживать:

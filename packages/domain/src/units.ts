@@ -29,6 +29,9 @@ export const inchesToTwip = (inches: number): Twip =>
 export const centimetersToTwip = (centimeters: number): Twip =>
   inchesToTwip(assertNonNegativeFiniteNumber(centimeters, "Centimeters") / 2.54);
 
+export const millimetersToTwip = (millimeters: number): Twip =>
+  centimetersToTwip(assertNonNegativeFiniteNumber(millimeters, "Millimeters") / 10);
+
 export const pixelsToEmu = (pixels: number, dpi = 96): Emu => {
   const safePixels = assertNonNegativeFiniteNumber(pixels, "Pixels");
   const safeDpi = assertPositiveFiniteNumber(dpi, "DPI");
