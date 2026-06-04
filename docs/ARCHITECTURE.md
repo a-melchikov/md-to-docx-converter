@@ -819,6 +819,28 @@ buildApp(options?) -> Promise<FastifyInstance>
 
 `GET /api/v1/health` и `GET /api/v1/ready` являются единственными рабочими endpoints в `MVP-10`. Endpoint-ы `POST /api/v1/configs/validate`, `POST /api/v1/preview/html` и `POST /api/v1/convert` реализуются отдельно в `MVP-11`, `MVP-12` и `MVP-13`.
 
+### API Config Validation Endpoint
+
+`POST /api/v1/configs/validate` валидирует JSON-конфигурацию Markdown -> DOCX через общий runtime validation слой `@md-to-docx/config-schema`.
+
+Flow:
+
+```text
+HTTP JSON request
+  -> route
+  -> controller
+  -> config-validation service
+  -> @md-to-docx/config-schema.validateConfig()
+  -> Diagnostic[]
+  -> HTTP response
+```
+
+Route отвечает только за HTTP-level contract: путь, метод, JSON content type и передачу управления controller. Controller вызывает service и маппит результат в response DTO. Service является единственным местом в `apps/api`, которое импортирует `validateConfig()`.
+
+Правила валидации не дублируются в `apps/api`: JSON Schema, Ajv validator, diagnostic mapping и config typing остаются в `packages/config-schema`. Невалидная пользовательская конфигурация возвращает `200` с `{ valid: false, diagnostics }`; malformed JSON возвращает `400`, unsupported content type возвращает `415`.
+
+Будущий frontend JSON mode должен использовать этот endpoint для серверной проверки конфигурации и подсветки ошибок по `Diagnostic.path`. Endpoint-ы `POST /api/v1/preview/html` и `POST /api/v1/convert` остаются отдельными задачами `MVP-12` и `MVP-13`.
+
 ## Preview
 
 MVP:

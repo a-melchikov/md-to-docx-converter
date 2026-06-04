@@ -27,10 +27,7 @@ export function registerErrorHandlers(
   app.setErrorHandler((error, request, reply) => {
     const statusCode = normalizeStatusCode(error);
     const isServerError = statusCode >= 500;
-    const message = isServerError
-      ? "Внутренняя ошибка сервера"
-      : getErrorMessage(error);
-    const code = isServerError ? "internal.serverError" : "http.requestError";
+    const apiError = resolveApiError(error, statusCode, isServerError);
 
     if (isServerError) {
       request.log.error({ err: error, requestId: request.id }, "request failed");
@@ -40,8 +37,8 @@ export function registerErrorHandlers(
 
     sendError(reply, statusCode, {
       error: {
-        code,
-        message,
+        code: apiError.code,
+        message: apiError.message,
         requestId: request.id
       }
     });
@@ -64,6 +61,56 @@ function getStatusCode(error: unknown): number {
   }
 
   return 500;
+}
+
+function resolveApiError(
+  error: unknown,
+  statusCode: number,
+  isServerError: boolean
+): Pick<ApiErrorPayload["error"], "code" | "message"> {
+  const fastifyCode = getFastifyErrorCode(error);
+
+  if (
+    fastifyCode === "FST_ERR_CTP_INVALID_JSON_BODY" ||
+    fastifyCode === "FST_ERR_CTP_EMPTY_JSON_BODY"
+  ) {
+    return {
+      code: "request.invalidJson",
+      message: "Тело запроса должно быть корректным JSON."
+    };
+  }
+
+  if (statusCode === 415 || fastifyCode === "FST_ERR_CTP_INVALID_MEDIA_TYPE") {
+    return {
+      code: "request.unsupportedMediaType",
+      message: "Content-Type запроса должен быть application/json."
+    };
+  }
+
+  if (isServerError) {
+    return {
+      code: "internal.serverError",
+      message: "Внутренняя ошибка сервера"
+    };
+  }
+
+  return {
+    code: "http.requestError",
+    message: getErrorMessage(error)
+  };
+}
+
+function getFastifyErrorCode(error: unknown): string | undefined {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof error.code === "string"
+  ) {
+    return error.code;
+  }
+
+  return undefined;
 }
 
 function getErrorMessage(error: unknown): string {
