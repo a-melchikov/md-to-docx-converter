@@ -25,7 +25,7 @@ export class HttpClientError extends Error {
   }
 }
 
-const defaultApiBaseUrl = "http://localhost:8080";
+const defaultApiBaseUrl = "";
 
 export function getApiBaseUrl(): string {
   const raw = import.meta.env.VITE_API_BASE_URL;

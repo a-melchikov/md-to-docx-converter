@@ -68,6 +68,12 @@ pnpm --filter @md-to-docx/api dev
 pnpm --filter @md-to-docx/web dev
 ```
 
+Если frontend запускается напрямую через Vite без nginx, задайте API base URL явно:
+
+```bash
+VITE_API_BASE_URL=http://localhost:8080 pnpm --filter @md-to-docx/web dev
+```
+
 Для обычного запуска приложения предпочтителен Docker Compose, потому что он поднимает frontend, backend и nginx в согласованной топологии.
 
 ## Production-like запуск через Docker
