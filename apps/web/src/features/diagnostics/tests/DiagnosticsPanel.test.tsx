@@ -13,7 +13,7 @@ describe("DiagnosticsPanel", () => {
   it("renders empty state", () => {
     render(<DiagnosticsPanel sources={[]} />);
 
-    expect(screen.getByText("Ошибок и предупреждений нет")).toBeInTheDocument();
+    expect(screen.getAllByText("Документ готов к экспорту.").length).toBeGreaterThan(0);
   });
 
   it("renders severity labels as text", () => {
@@ -34,7 +34,7 @@ describe("DiagnosticsPanel", () => {
     expect(
       screen.getByRole("heading", { name: "Информация" })
     ).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Конфигурация" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Настройки" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Markdown" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Предпросмотр" })).toBeInTheDocument();
   });
@@ -42,9 +42,10 @@ describe("DiagnosticsPanel", () => {
   it("shows summary counts", () => {
     render(<DiagnosticsPanel sources={diagnosticSources()} />);
 
-    expect(screen.getByText("Ошибки: 1")).toBeInTheDocument();
-    expect(screen.getByText("Предупреждения: 2")).toBeInTheDocument();
-    expect(screen.getByText("Информация: 1")).toBeInTheDocument();
+    expect(screen.getByText("Есть ошибки")).toBeInTheDocument();
+    expect(screen.getByText("1 ошибка")).toBeInTheDocument();
+    expect(screen.getByText("2 предупреждения")).toBeInTheDocument();
+    expect(screen.getByText("1 информационное")).toBeInTheDocument();
   });
 
   it("filters by errors", () => {
@@ -78,7 +79,7 @@ describe("DiagnosticsPanel", () => {
   it("shows path, source location and technical details", () => {
     render(<DiagnosticsPanel sources={diagnosticSources()} />);
 
-    expect(screen.getAllByText("Путь: version").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Где: Путь: version").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Строка 12, столбец 5").length).toBeGreaterThan(0);
 
     const details = screen.getAllByText("Технические детали")[0];
@@ -103,7 +104,7 @@ describe("DiagnosticsPanel", () => {
   it("has accessible filter controls", () => {
     render(<DiagnosticsPanel sources={diagnosticSources()} />);
 
-    const filters = screen.getByRole("group", { name: "Фильтр diagnostics" });
+    const filters = screen.getByRole("group", { name: "Фильтр предупреждений" });
 
     for (const name of ["Все", "Ошибки", "Предупреждения", "Информация"]) {
       expect(within(filters).getByRole("button", { name })).toBeInTheDocument();

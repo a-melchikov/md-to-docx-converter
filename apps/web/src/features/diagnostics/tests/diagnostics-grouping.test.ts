@@ -51,9 +51,9 @@ describe("diagnostics grouping", () => {
       "warning",
       "info"
     ]);
-    expect(groups[0]?.categories[0]?.category).toBe("Конфигурация");
+    expect(groups[0]?.categories[0]?.category).toBe("Настройки");
     expect(groups[1]?.categories[0]?.category).toBe("Markdown");
-    expect(groups[2]?.categories[0]?.category).toBe("Интерфейс");
+    expect(groups[2]?.categories[0]?.category).toBe("Файлы");
   });
 
   it("summarizes diagnostics by severity", () => {

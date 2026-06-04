@@ -1,0 +1,57 @@
+:root {
+  --color-bg: #f7f7f5;
+  --color-surface: #ffffff;
+  --color-surface-muted: #fafaf8;
+  --color-surface-raised: #ffffff;
+  --color-border: #e6e4de;
+  --color-border-strong: #d8d5cc;
+  --color-text: #2f2f2b;
+  --color-text-muted: #6f6b63;
+  --color-text-subtle: #9a958a;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-soft: #eff6ff;
+  --color-success: #168a4a;
+  --color-success-soft: #eaf7ef;
+  --color-warning: #a16207;
+  --color-warning-soft: #fff7d6;
+  --color-error: #b42318;
+  --color-error-soft: #feeceb;
+  --color-info: #2563eb;
+  --color-info-soft: #eff6ff;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(47 47 43 / 6%);
+  --shadow-md: 0 10px 30px rgb(47 47 43 / 10%);
+  --shadow-page: 0 18px 55px rgb(47 47 43 / 14%);
+
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", "Courier New",
+    monospace;
+
+  --text-xs: 0.78rem;
+  --text-sm: 0.88rem;
+  --text-md: 1rem;
+  --text-lg: 1.12rem;
+  --text-xl: 1.45rem;
+  --text-2xl: 1.85rem;
+
+  --line-tight: 1.2;
+  --line-normal: 1.5;
+  --line-relaxed: 1.65;
+}

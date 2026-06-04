@@ -24,7 +24,7 @@ describe("frontend shell", () => {
       screen.getByRole("heading", { name: "Редактор Markdown" })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Предпросмотр" })
+      screen.getByRole("heading", { name: "Предпросмотр DOCX" })
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Настройки" })).toBeInTheDocument();
     expect(
@@ -74,7 +74,7 @@ describe("frontend shell", () => {
   it("renders the warnings empty state", () => {
     render(<App />);
 
-    expect(screen.getByText("Ошибок и предупреждений нет")).toBeInTheDocument();
+    expect(screen.getAllByText("Документ готов к экспорту.").length).toBeGreaterThan(0);
   });
 
   it("uses semantic layout regions", () => {
@@ -87,7 +87,12 @@ describe("frontend shell", () => {
     expect(
       screen.getByRole("navigation", { name: "Действия с документом" })
     ).toBeInTheDocument();
-    expect(screen.getByRole("complementary")).toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Панель ввода и настроек" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Предупреждения и ошибки" })
+    ).toBeInTheDocument();
   });
 
   it("renders an accessible live preview region", () => {
@@ -123,6 +128,72 @@ describe("frontend shell", () => {
       ).toHaveValue("# Загруженный документ");
     });
     expect(screen.getByText("Файл: uploaded.md")).toBeInTheDocument();
+  });
+
+  it("uses a light document workspace layout with collapsible controls", () => {
+    render(<App />);
+
+    expect(screen.getByText("Рабочее пространство")).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("button", { name: "Скрыть панель ввода" })[0]
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(
+      screen.getAllByRole("button", { name: "Скрыть предупреждения" })[0]
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(
+      screen.getByRole("heading", { name: "Предпросмотр DOCX" })
+    ).toBeInTheDocument();
+  });
+
+  it("keeps Markdown state when the input and configuration panel is hidden", () => {
+    render(<App />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Markdown-текст" }), {
+      target: { value: "# Текст сохраняется" }
+    });
+    fireEvent.click(screen.getAllByRole("button", { name: "Скрыть панель ввода" })[0]!);
+
+    expect(screen.queryByRole("textbox", { name: "Markdown-текст" })).toBeNull();
+    expect(
+      screen.getByRole("region", { name: "HTML предпросмотр документа" })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Показать панель ввода" })[0]!);
+
+    expect(screen.getByRole("textbox", { name: "Markdown-текст" })).toHaveValue(
+      "# Текст сохраняется"
+    );
+  });
+
+  it("shows a compact indicator when warnings are hidden and diagnostics exist", async () => {
+    const invalidFile = new File(["%PDF"], "document.pdf", {
+      type: "application/pdf"
+    });
+    Object.defineProperty(invalidFile, "text", {
+      value: () => Promise.resolve("%PDF")
+    });
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText("Выбрать Markdown-файл"), {
+      target: {
+        files: [invalidFile]
+      }
+    });
+
+    expect(
+      (
+        await screen.findAllByText(
+          "Формат файла не поддерживается. Разрешены: .md, .markdown, .txt."
+        )
+      ).length
+    ).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Скрыть предупреждения" })[0]!);
+
+    expect(screen.getAllByText("1 ошибка").length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByRole("button", { name: "Показать предупреждения" })[0]
+    ).toHaveAttribute("aria-expanded", "false");
   });
 });
 

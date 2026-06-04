@@ -15,9 +15,12 @@ export interface DiagnosticViewModel {
   readonly source: DiagnosticUiSource;
   readonly sourceName: string;
   readonly message: string;
+  readonly explanation: string;
+  readonly recommendation: string;
   readonly code: string;
   readonly path?: string | undefined;
   readonly sourceLocation?: string | undefined;
+  readonly locationLabel?: string | undefined;
   readonly metadata?: DiagnosticMetadata | undefined;
 }
 
@@ -36,13 +39,21 @@ export function diagnosticToViewModel(
     source,
     sourceName: sourceName(source),
     message: safeDiagnosticMessage(diagnostic.message),
+    explanation: explanationForDiagnostic(code, source),
+    recommendation: recommendationForDiagnostic(code, source),
     code,
     ...(diagnostic.path && diagnostic.path.length > 0
       ? { path: pathToString(diagnostic.path) }
       : {}),
     ...(diagnostic.source === undefined
       ? {}
-      : { sourceLocation: sourceLocationLabel(diagnostic.source) }),
+      : {
+          sourceLocation: sourceLocationLabel(diagnostic.source),
+          locationLabel: sourceLocationLabel(diagnostic.source)
+        }),
+    ...(diagnostic.source === undefined && diagnostic.path && diagnostic.path.length > 0
+      ? { locationLabel: `Путь: ${pathToString(diagnostic.path)}` }
+      : {}),
     ...(diagnostic.metadata === undefined
       ? {}
       : { metadata: diagnostic.metadata })
@@ -82,7 +93,7 @@ export function categoryForDiagnostic(
     code === "config-validation-error" ||
     code === "convert.invalidConfig"
   ) {
-    return "Конфигурация";
+    return "Настройки";
   }
 
   if (
@@ -97,7 +108,7 @@ export function categoryForDiagnostic(
     code === "fallback-style" ||
     code === "invalid-xml-character"
   ) {
-    return "Стили";
+    return "Документ";
   }
 
   if (code.startsWith("preview.") || code === "preview-fidelity-warning") {
@@ -109,18 +120,84 @@ export function categoryForDiagnostic(
   }
 
   if (code.startsWith("api.")) {
-    return "API";
+    return code.startsWith("api.preview")
+      ? "Предпросмотр"
+      : "Экспорт DOCX";
   }
 
   if (code.startsWith("frontend.") || code.startsWith("markdownUpload.")) {
-    return "Интерфейс";
+    return code.includes("upload") || code.includes("File")
+      ? "Файлы"
+      : "Настройки";
   }
 
   if (code.startsWith("asset")) {
     return "Экспорт DOCX";
   }
 
-  return sourceName(fallbackSource) === "API" ? "API" : "Прочее";
+  return sourceName(fallbackSource) === "API" ? "Предпросмотр" : "Прочее";
+}
+
+function explanationForDiagnostic(
+  code: string,
+  source: DiagnosticUiSource
+): string {
+  if (code.startsWith("config.") || source === "config") {
+    return "Некоторые настройки документа заполнены некорректно или неполно.";
+  }
+
+  if (code.startsWith("markdown.")) {
+    return "Некоторые элементы Markdown могут быть перенесены в DOCX не полностью.";
+  }
+
+  if (code.startsWith("style.")) {
+    return "Оформление документа было скорректировано безопасным fallback-правилом.";
+  }
+
+  if (code.startsWith("preview.") || code.startsWith("api.preview")) {
+    return "Предпросмотр работает в быстром режиме и может отличаться от Microsoft Word.";
+  }
+
+  if (code.startsWith("docx.") || code.startsWith("convert.") || source === "export") {
+    return "Экспорт DOCX завершился с ограничениями или требует корректировки входных данных.";
+  }
+
+  if (source === "frontend") {
+    return "Проверьте введённые данные или выбранный файл.";
+  }
+
+  return "Сообщение относится к обработке документа.";
+}
+
+function recommendationForDiagnostic(
+  code: string,
+  source: DiagnosticUiSource
+): string {
+  if (code.startsWith("config.validation.")) {
+    return "Проверьте настройки в визуальном режиме или JSON-режиме.";
+  }
+
+  if (code.includes("unsupportedHtml") || code.includes("unsupportedNode")) {
+    return "Замените неподдерживаемый фрагмент обычным Markdown, если важно сохранить содержимое.";
+  }
+
+  if (code.includes("unsafeUrl")) {
+    return "Используйте безопасную ссылку с протоколом http, https, mailto или tel.";
+  }
+
+  if (code.includes("missingAsset") || code.includes("upload")) {
+    return "Проверьте выбранный файл и повторите действие.";
+  }
+
+  if (code.startsWith("api.")) {
+    return "Повторите действие после восстановления соединения с сервером.";
+  }
+
+  if (source === "preview") {
+    return "Действие не требуется, если результат предпросмотра выглядит корректно.";
+  }
+
+  return "Действие не требуется, если результат документа выглядит корректно.";
 }
 
 export function sourceLocationLabel(

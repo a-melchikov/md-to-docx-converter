@@ -13,18 +13,24 @@ export function DiagnosticItem({ item }: DiagnosticItemProps) {
         </span>
         <span className="diagnostics-item-message">{item.message}</span>
       </div>
+      <p className="diagnostics-item-explanation">{item.explanation}</p>
       <div className="diagnostics-item-context">
-        <span>Категория: {item.category}</span>
-        <span>Источник: {item.sourceName}</span>
-        {item.path ? <span>Путь: {item.path}</span> : null}
-        {item.sourceLocation ? <span>{item.sourceLocation}</span> : null}
+        <span>Раздел: {item.category}</span>
+        {item.locationLabel ? <span>Где: {item.locationLabel}</span> : null}
       </div>
+      <p className="diagnostics-item-action">
+        <strong>Что сделать:</strong> {item.recommendation}
+      </p>
       <details className="diagnostics-technical-details">
         <summary>Технические детали</summary>
         <dl>
           <div>
             <dt>Код</dt>
             <dd>{item.code}</dd>
+          </div>
+          <div>
+            <dt>Источник</dt>
+            <dd>{item.sourceName}</dd>
           </div>
           {item.path ? (
             <div>
@@ -34,7 +40,7 @@ export function DiagnosticItem({ item }: DiagnosticItemProps) {
           ) : null}
           {item.sourceLocation ? (
             <div>
-              <dt>Источник</dt>
+              <dt>Расположение</dt>
               <dd>{item.sourceLocation}</dd>
             </div>
           ) : null}

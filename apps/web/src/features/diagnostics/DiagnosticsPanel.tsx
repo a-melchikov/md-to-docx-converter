@@ -39,7 +39,7 @@ export function DiagnosticsPanel({ sources }: DiagnosticsPanelProps) {
     <>
       <div className="panel-heading">
         <div>
-          <p className="panel-label">Диагностика</p>
+          <p className="panel-label">Состояние документа</p>
           <h2 id="warnings-heading">Предупреждения и ошибки</h2>
         </div>
         <span className="panel-status">{summary.total}</span>
@@ -48,7 +48,7 @@ export function DiagnosticsPanel({ sources }: DiagnosticsPanelProps) {
       <DiagnosticsSummary summary={summary} />
 
       <div
-        aria-label="Фильтр diagnostics"
+        aria-label="Фильтр предупреждений"
         className="diagnostics-filters"
         role="group"
       >
@@ -69,7 +69,7 @@ export function DiagnosticsPanel({ sources }: DiagnosticsPanelProps) {
         {groups.length === 0 ? (
           <div className="empty-warning-state" role="status">
             <strong>Ошибок и предупреждений нет</strong>
-            <span>Diagnostics появятся здесь после проверки настроек, предпросмотра или экспорта.</span>
+            <span>Документ готов к экспорту.</span>
           </div>
         ) : (
           groups.map((group) => (

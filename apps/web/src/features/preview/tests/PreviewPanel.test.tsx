@@ -91,6 +91,53 @@ describe("PreviewPanel", () => {
     expect(screen.getByText("Быстрый предпросмотр")).toBeInTheDocument();
   });
 
+  it("renders paginated preview toolbar with navigation and mode controls", async () => {
+    mockSuccessfulPreview({
+      html:
+        '<div class="md2docx-preview"><div class="md2docx-page">Страница 1</div><div class="md2docx-page">Страница 2</div></div>'
+    });
+    renderPreview();
+
+    await advancePreviewDebounce();
+
+    expect(
+      screen.getByRole("heading", { name: "Предпросмотр DOCX" })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Все страницы" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByRole("button", { name: "Одна страница" })).toBeInTheDocument();
+    expect(screen.getByText(hasText("Страница 1 из 2"))).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Предыдущая страница" })
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Следующая страница" })
+    ).toBeEnabled();
+  });
+
+  it("supports single page navigation without changing zoom", async () => {
+    const onZoomChange = vi.fn();
+    mockSuccessfulPreview({
+      html:
+        '<div class="md2docx-preview"><div class="md2docx-page">Страница 1</div><div class="md2docx-page">Страница 2</div></div>'
+    });
+    renderPreview({ onZoomChange, zoomPercent: 110 });
+
+    await advancePreviewDebounce();
+    fireEvent.click(screen.getByRole("button", { name: "Одна страница" }));
+    fireEvent.click(screen.getByRole("button", { name: "Следующая страница" }));
+
+    expect(screen.getByText(hasText("Страница 2 из 2"))).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Одна страница" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByLabelText("Масштаб предпросмотра")).toHaveValue("110");
+    expect(onZoomChange).not.toHaveBeenCalled();
+  });
+
   it("displays backend diagnostics next to preview", async () => {
     mockSuccessfulPreview({
       diagnostics: [
@@ -430,4 +477,9 @@ function readRequest(fetchSpy: ReturnType<typeof vi.fn>): PreviewRequestBody {
   }
 
   return JSON.parse(init.body) as PreviewRequestBody;
+}
+
+function hasText(expectedText: string) {
+  return (_content: string, element: Element | null) =>
+    element?.textContent?.replace(/\s+/gu, " ").trim() === expectedText;
 }
