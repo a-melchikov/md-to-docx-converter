@@ -841,6 +841,36 @@ Route отвечает только за HTTP-level contract: путь, мето
 
 Будущий frontend JSON mode должен использовать этот endpoint для серверной проверки конфигурации и подсветки ошибок по `Diagnostic.path`. Endpoint-ы `POST /api/v1/preview/html` и `POST /api/v1/convert` остаются отдельными задачами `MVP-12` и `MVP-13`.
 
+### API HTML Preview Endpoint
+
+`POST /api/v1/preview/html` строит fast DOCX-like HTML preview из Markdown и конфигурации через уже реализованные packages.
+
+Pipeline:
+
+```text
+HTTP JSON request
+  -> request DTO validation / input limits
+  -> @md-to-docx/config-schema.validateConfig()
+  -> @md-to-docx/md-parser.parseMarkdown()
+  -> @md-to-docx/style-engine.resolveStyles()
+  -> @md-to-docx/html-preview.renderHtmlPreview()
+  -> html + css + metadata + Diagnostic[]
+  -> HTTP response
+```
+
+Route отвечает за `POST /api/v1/preview/html`, JSON content type и body limit. Controller вызывает preview service и возвращает DTO. Service оркестрирует pipeline; route/controller не содержат parsing, style resolving или rendering logic.
+
+Input limits применяются до Markdown parsing:
+
+- `markdown` обязателен и ограничен `MAX_MARKDOWN_CHARS`;
+- `fileName` ограничен длиной;
+- `options.zoom` ограничен диапазоном `0.25..3`;
+- route-level JSON body limit ограничивает размер request body.
+
+Endpoint не генерирует DOCX, не использует Mammoth, не использует `docx-preview` и не выполняет raw HTML. HTML escaping и unsafe URL handling выполняются в `packages/html-preview`; API не вставляет дополнительный пользовательский HTML поверх adapter output.
+
+Response объединяет diagnostics из request validation, config validation, Markdown parser, Style Engine и HTML preview adapter. Невалидная конфигурация возвращает diagnostics и не запускает Markdown parser. Frontend live preview integration остаётся отдельной задачей `MVP-18`.
+
 ## Preview
 
 MVP:

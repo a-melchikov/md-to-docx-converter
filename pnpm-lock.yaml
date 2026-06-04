@@ -44,6 +44,18 @@ importers:
       '@md-to-docx/config-schema':
         specifier: workspace:*
         version: link:../../packages/config-schema
+      '@md-to-docx/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@md-to-docx/html-preview':
+        specifier: workspace:*
+        version: link:../../packages/html-preview
+      '@md-to-docx/md-parser':
+        specifier: workspace:*
+        version: link:../../packages/md-parser
+      '@md-to-docx/style-engine':
+        specifier: workspace:*
+        version: link:../../packages/style-engine
       fastify:
         specifier: ^5.8.5
         version: 5.8.5

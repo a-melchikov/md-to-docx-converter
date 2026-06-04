@@ -15,6 +15,10 @@
     "@fastify/rate-limit": "^10.3.0",
     "@fastify/sensible": "^6.0.4",
     "@md-to-docx/config-schema": "workspace:*",
+    "@md-to-docx/domain": "workspace:*",
+    "@md-to-docx/html-preview": "workspace:*",
+    "@md-to-docx/md-parser": "workspace:*",
+    "@md-to-docx/style-engine": "workspace:*",
     "fastify": "^5.8.5"
   },
   "devDependencies": {

@@ -46,6 +46,10 @@ export type KnownDiagnosticCode =
   | "preview.node.unsupported"
   | "preview.security.unsafeUrl"
   | "preview.security.escapedHtml"
+  | "api.preview.invalidRequest"
+  | "api.preview.markdownTooLarge"
+  | "api.preview.invalidZoom"
+  | "api.preview.pipelineFailed"
   | "asset-warning"
   | "preview-fidelity-warning";
 
