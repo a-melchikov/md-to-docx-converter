@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { MarkdownEditor } from "./features/markdown-editor/MarkdownEditor.js";
 import { useMarkdownDocument } from "./features/markdown-editor/useMarkdownDocument.js";
+import { PreviewPanel } from "./features/preview/PreviewPanel.js";
 import { StyleSettingsPanel } from "./features/style-settings/StyleSettingsPanel.js";
 import { useConfigState } from "./state/useConfigState.js";
 
@@ -62,37 +63,12 @@ export function App() {
           className="panel preview-panel"
           aria-labelledby="preview-heading"
         >
-          <div className="panel-heading">
-            <div>
-              <p className="panel-label">Вывод</p>
-              <h2 id="preview-heading">Предпросмотр</h2>
-            </div>
-            <label className="zoom-control">
-              <span>Масштаб {previewZoom}%</span>
-              <input
-                aria-label="Масштаб предпросмотра"
-                max="150"
-                min="50"
-                step="10"
-                type="range"
-                value={previewZoom}
-                onChange={(event) => setPreviewZoom(Number(event.target.value))}
-              />
-            </label>
-          </div>
-          <div className="preview-stage">
-            <div
-              className="preview-page"
-              style={{ transform: `scale(${previewZoom / 100})` }}
-            >
-              <div className="preview-page-content">
-                <p className="preview-placeholder">
-                  Предпросмотр будет реализован в MVP-18 через API
-                  /api/v1/preview/html
-                </p>
-              </div>
-            </div>
-          </div>
+          <PreviewPanel
+            config={configState.config}
+            markdownDocument={markdownDocument}
+            zoomPercent={previewZoom}
+            onZoomChange={setPreviewZoom}
+          />
         </section>
 
         <aside

@@ -90,24 +90,22 @@ describe("frontend shell", () => {
     expect(screen.getByRole("complementary")).toBeInTheDocument();
   });
 
-  it("keeps preview as API placeholder without rendered Markdown", () => {
+  it("renders an accessible live preview region", () => {
     render(<App />);
 
     expect(
-      screen.getByText(/Предпросмотр будет реализован в MVP-18/)
+      screen.getByRole("region", { name: "HTML предпросмотр документа" })
     ).toBeInTheDocument();
   });
 
-  it("does not call preview or export APIs while editing Markdown", () => {
-    const fetchSpy = vi.fn();
-    vi.stubGlobal("fetch", fetchSpy);
+  it("keeps DOCX export disabled while editing Markdown", () => {
     render(<App />);
 
     fireEvent.change(screen.getByRole("textbox", { name: "Markdown-текст" }), {
       target: { value: "# Новый документ" }
     });
 
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Скачать DOCX" })).toBeDisabled();
   });
 
   it("updates application Markdown state from uploaded file", async () => {

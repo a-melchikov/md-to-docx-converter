@@ -274,6 +274,39 @@ Export JSON выгружает только `ConversionConfig`: `active tab`, `i
 
 Live preview и DOCX export остаются отдельными задачами `MVP-18` и `MVP-19`. JSON mode не вызывает Markdown parser, Style Engine, DOCX adapter, HTML preview или API.
 
+### Live Preview Integration
+
+`MVP-18` связывает frontend shell с backend endpoint `POST /api/v1/preview/html`.
+
+Поток данных:
+
+```text
+Markdown state + Config state + Preview options
+  -> debounce
+  -> POST /api/v1/preview/html
+  -> HTML/CSS preview + Diagnostic[]
+  -> Preview UI
+```
+
+Frontend отправляет текущий `MarkdownDocumentState.content`, текущий `ConversionConfig` из visual/JSON settings state и preview options, включая zoom. Preview строится только backend pipeline:
+
+```text
+request
+  -> config validation
+  -> md-parser
+  -> style-engine
+  -> html-preview
+  -> response
+```
+
+`apps/web` не рендерит preview напрямую из raw Markdown, не подключает локальный Markdown renderer и не запускает parser/style/html-preview packages в браузере как замену API. HTML вставляется только в ограниченную preview-область из ответа собственного backend adapter; CSS ответа подключается scoped внутри preview component.
+
+Обновления preview выполняются с debounce, чтобы изменения Markdown/config/zoom не отправляли запрос на каждый символ. При новом изменении активный request отменяется через `AbortController`; поздний ответ устаревшего request не должен перезаписывать актуальный preview. `AbortError` не отображается пользователю как ошибка.
+
+Preview UI хранит отдельное состояние `idle | loading | success | error`. Ошибки preview не очищают editor state и не сбрасывают config state; последний успешный preview может оставаться на экране рядом с русскоязычным error state. Diagnostics из backend response отображаются рядом с preview как локальный блок `Предупреждения предпросмотра`.
+
+DOCX export integration остаётся отдельной задачей `MVP-19`. Единая warnings panel, объединяющая diagnostics приложения, остаётся отдельной задачей `MVP-20`.
+
 ### `apps/api`
 
 Backend на Node.js + TypeScript + Fastify.
