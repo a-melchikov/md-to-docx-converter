@@ -44,6 +44,9 @@ importers:
       '@md-to-docx/config-schema':
         specifier: workspace:*
         version: link:../../packages/config-schema
+      '@md-to-docx/docx-adapter':
+        specifier: workspace:*
+        version: link:../../packages/docx-adapter
       '@md-to-docx/domain':
         specifier: workspace:*
         version: link:../../packages/domain
@@ -63,6 +66,9 @@ importers:
       '@types/node':
         specifier: ^25.9.1
         version: 25.9.1
+      jszip:
+        specifier: ^3.10.1
+        version: 3.10.1
 
   apps/web:
     dependencies:

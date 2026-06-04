@@ -15,6 +15,7 @@
     "@fastify/rate-limit": "^10.3.0",
     "@fastify/sensible": "^6.0.4",
     "@md-to-docx/config-schema": "workspace:*",
+    "@md-to-docx/docx-adapter": "workspace:*",
     "@md-to-docx/domain": "workspace:*",
     "@md-to-docx/html-preview": "workspace:*",
     "@md-to-docx/md-parser": "workspace:*",
@@ -22,6 +23,7 @@
     "fastify": "^5.8.5"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1"
+    "@types/node": "^25.9.1",
+    "jszip": "^3.10.1"
   }
 }

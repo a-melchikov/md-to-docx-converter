@@ -50,6 +50,12 @@ export type KnownDiagnosticCode =
   | "api.preview.markdownTooLarge"
   | "api.preview.invalidZoom"
   | "api.preview.pipelineFailed"
+  | "api.convert.invalidRequest"
+  | "api.convert.markdownTooLarge"
+  | "api.convert.invalidFileName"
+  | "api.convert.pipelineFailed"
+  | "convert.invalidConfig"
+  | "convert.generationFailed"
   | "asset-warning"
   | "preview-fidelity-warning";
 

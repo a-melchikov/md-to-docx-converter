@@ -871,6 +871,53 @@ Endpoint не генерирует DOCX, не использует Mammoth, не
 
 Response объединяет diagnostics из request validation, config validation, Markdown parser, Style Engine и HTML preview adapter. Невалидная конфигурация возвращает diagnostics и не запускает Markdown parser. Frontend live preview integration остаётся отдельной задачей `MVP-18`.
 
+### API DOCX Convert Endpoint
+
+`POST /api/v1/convert` выполняет полный Markdown -> DOCX pipeline и возвращает бинарный `.docx` artifact.
+
+Pipeline:
+
+```text
+HTTP JSON request
+  -> request DTO validation / input limits
+  -> @md-to-docx/config-schema.validateConfig()
+  -> @md-to-docx/md-parser.parseMarkdown()
+  -> @md-to-docx/style-engine.resolveStyles()
+  -> @md-to-docx/docx-adapter.generateDocx()
+  -> DOCX binary response
+```
+
+Route отвечает за `POST /api/v1/convert`, JSON content type и body limit. Controller выбирает HTTP response shape: binary DOCX для успешной конвертации или JSON error для ожидаемых пользовательских ошибок. Service оркестрирует pipeline; handler не содержит parser/style/DOCX business logic.
+
+Успешный response:
+
+- `Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document`;
+- `Content-Disposition: attachment; filename="...docx"; filename*=UTF-8''...`;
+- `X-MD2DOCX-Diagnostics: <base64url-json>`;
+- body содержит DOCX binary.
+
+Diagnostics header содержит JSON вида `{ diagnostics: Diagnostic[] }`, закодированный base64url. Если header становится слишком большим, API оставляет первые diagnostics и добавляет `truncated: true` и `total`.
+
+Input limits применяются до Markdown parsing:
+
+- `markdown` обязателен и ограничен `MAX_CONVERT_MARKDOWN_CHARS`;
+- route-level JSON body limit ограничивает request body;
+- `options.fileName` ограничен длиной;
+- `assets` в MVP принимается только как отсутствующий или пустой JSON object.
+
+Filename policy:
+
+- trim;
+- path separators `/` и `\` используются только для выбора последнего сегмента;
+- control chars удаляются;
+- `..` удаляется;
+- опасные символы `:"*?<>|` заменяются;
+- если имя пустое, используется `document.docx`;
+- если расширение `.md`/`.markdown`, оно заменяется на `.docx`;
+- `.docx` гарантируется всегда.
+
+Endpoint не скачивает external assets, не читает локальные file paths из Markdown и не реализует frontend export flow. Если Markdown содержит image без binary asset, `packages/docx-adapter` возвращает warning diagnostic и безопасный alt-text fallback. Frontend DOCX export integration остаётся отдельной задачей `MVP-19`.
+
 ## Preview
 
 MVP:
