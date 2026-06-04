@@ -1,7 +1,7 @@
 import type { ConversionConfig } from "@md-to-docx/config-schema";
 import type { Diagnostic } from "@md-to-docx/domain";
 import { pathToString } from "@md-to-docx/domain";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import type { MarkdownDocumentState } from "../markdown-editor/markdown-document-state.js";
 import { useLivePreview } from "./useLivePreview.js";
@@ -11,13 +11,15 @@ export interface PreviewPanelProps {
   readonly config: ConversionConfig;
   readonly zoomPercent: number;
   readonly onZoomChange: (zoomPercent: number) => void;
+  readonly onDiagnosticsChange?: ((diagnostics: readonly Diagnostic[]) => void) | undefined;
 }
 
 export function PreviewPanel({
   markdownDocument,
   config,
   zoomPercent,
-  onZoomChange
+  onZoomChange,
+  onDiagnosticsChange
 }: PreviewPanelProps) {
   const options = useMemo(
     () => ({
@@ -32,6 +34,11 @@ export function PreviewPanel({
     config,
     options
   });
+
+  useEffect(() => {
+    onDiagnosticsChange?.(preview.diagnostics);
+  }, [onDiagnosticsChange, preview.diagnostics]);
+
   const fidelityLabel =
     preview.metadata?.fidelity === "fast-preview"
       ? "Быстрый предпросмотр"

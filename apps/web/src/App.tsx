@@ -1,5 +1,7 @@
+import type { Diagnostic } from "@md-to-docx/domain";
 import { useState } from "react";
 
+import { DocxExportControls } from "./features/export-docx/DocxExportControls.js";
 import { MarkdownEditor } from "./features/markdown-editor/MarkdownEditor.js";
 import { useMarkdownDocument } from "./features/markdown-editor/useMarkdownDocument.js";
 import { PreviewPanel } from "./features/preview/PreviewPanel.js";
@@ -9,8 +11,7 @@ import { useConfigState } from "./state/useConfigState.js";
 const toolbarActions = [
   "Открыть Markdown",
   "Импорт настроек",
-  "Экспорт настроек",
-  "Скачать DOCX"
+  "Экспорт настроек"
 ] as const;
 
 export function App() {
@@ -22,6 +23,9 @@ export function App() {
   } = useMarkdownDocument();
   const { state: configState, updateConfig, replaceConfig } = useConfigState();
   const [previewZoom, setPreviewZoom] = useState(100);
+  const [previewDiagnostics, setPreviewDiagnostics] = useState<
+    readonly Diagnostic[]
+  >([]);
 
   return (
     <div className="app-shell">
@@ -43,6 +47,11 @@ export function App() {
               {action}
             </button>
           ))}
+          <DocxExportControls
+            config={configState.config}
+            markdownDocument={markdownDocument}
+            previewDiagnostics={previewDiagnostics}
+          />
         </nav>
       </header>
 
@@ -67,6 +76,7 @@ export function App() {
             config={configState.config}
             markdownDocument={markdownDocument}
             zoomPercent={previewZoom}
+            onDiagnosticsChange={setPreviewDiagnostics}
             onZoomChange={setPreviewZoom}
           />
         </section>

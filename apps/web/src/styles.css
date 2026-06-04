@@ -81,6 +81,7 @@ input:focus-visible,
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 10px;
+  max-width: 760px;
 }
 
 .action-button,
@@ -108,6 +109,12 @@ input:focus-visible,
   background: #f7f9fc;
 }
 
+.primary-action {
+  border-color: #1f6bd1;
+  background: #1f6bd1;
+  color: #ffffff;
+}
+
 .action-button:disabled {
   color: #7a8794;
   background: #f1f4f8;
@@ -118,6 +125,109 @@ input:focus-visible,
   color: #7a8794;
   background: #f1f4f8;
   cursor: not-allowed;
+}
+
+.docx-export-controls {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) auto;
+  align-items: start;
+  gap: 8px;
+  min-width: min(100%, 360px);
+}
+
+.export-file-name-field {
+  display: grid;
+  gap: 4px;
+  color: #293847;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.export-file-name-field input {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #bcc8d6;
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #1e2a36;
+  background: #ffffff;
+}
+
+.export-inline-error {
+  padding: 6px 8px;
+  border: 1px solid #d24b4b;
+  border-radius: 6px;
+  background: #fff3f3;
+  color: #8f1f1f;
+  font-size: 0.78rem;
+}
+
+.export-status {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  border: 1px solid #c7d4e4;
+  border-radius: 6px;
+  background: #f7f9fc;
+  color: #344457;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.export-status.success {
+  border-color: #93c5a4;
+  background: #effaf2;
+  color: #1e6b37;
+}
+
+.export-status.error {
+  border-color: #d24b4b;
+  background: #fff3f3;
+  color: #8f1f1f;
+}
+
+.export-status small {
+  color: inherit;
+  opacity: 0.8;
+}
+
+.export-diagnostics {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 8px;
+  max-height: 190px;
+  overflow: auto;
+  padding: 10px;
+  border: 1px solid #d8e0ea;
+  border-radius: 6px;
+  background: #fbfcfe;
+}
+
+.export-diagnostics h2,
+.export-diagnostics ul {
+  margin: 0;
+}
+
+.export-diagnostics h2 {
+  font-size: 0.94rem;
+}
+
+.export-diagnostics ul {
+  display: grid;
+  gap: 8px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.export-diagnostics li {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border: 1px solid #e0e6ee;
+  border-radius: 6px;
+  background: #ffffff;
+  font-size: 0.84rem;
 }
 
 .workspace {
@@ -747,6 +857,11 @@ input:focus-visible,
 
   .action-button {
     flex: 1 1 150px;
+  }
+
+  .docx-export-controls {
+    grid-template-columns: 1fr;
+    width: 100%;
   }
 
   .workspace {

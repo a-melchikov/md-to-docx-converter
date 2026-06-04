@@ -48,11 +48,11 @@ describe("frontend shell", () => {
     for (const name of [
       "Открыть Markdown",
       "Импорт настроек",
-      "Экспорт настроек",
-      "Скачать DOCX"
+      "Экспорт настроек"
     ]) {
       expect(screen.getByRole("button", { name })).toBeDisabled();
     }
+    expect(screen.getByRole("button", { name: "Скачать DOCX" })).toBeEnabled();
   });
 
   it("renders settings tabs as keyboard-accessible buttons", () => {
@@ -98,14 +98,14 @@ describe("frontend shell", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps DOCX export disabled while editing Markdown", () => {
+  it("keeps DOCX export available while editing Markdown", () => {
     render(<App />);
 
     fireEvent.change(screen.getByRole("textbox", { name: "Markdown-текст" }), {
       target: { value: "# Новый документ" }
     });
 
-    expect(screen.getByRole("button", { name: "Скачать DOCX" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Скачать DOCX" })).toBeEnabled();
   });
 
   it("updates application Markdown state from uploaded file", async () => {

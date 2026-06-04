@@ -307,6 +307,50 @@ Preview UI хранит отдельное состояние `idle | loading | 
 
 DOCX export integration остаётся отдельной задачей `MVP-19`. Единая warnings panel, объединяющая diagnostics приложения, остаётся отдельной задачей `MVP-20`.
 
+### DOCX Export Integration
+
+`MVP-19` связывает frontend с backend endpoint `POST /api/v1/convert`.
+
+Поток данных:
+
+```text
+Markdown state + Config state + Export options
+  -> POST /api/v1/convert
+  -> DOCX binary response
+  -> browser download
+```
+
+Frontend отправляет текущий `MarkdownDocumentState.content`, текущий `ConversionConfig` из visual/JSON settings state и `options.fileName`. DOCX всегда формируется backend pipeline:
+
+```text
+request
+  -> config validation
+  -> md-parser
+  -> style-engine
+  -> docx-adapter
+  -> DOCX binary response
+```
+
+`apps/web` не генерирует DOCX в браузере, не подключает `docx`, не читает local paths из Markdown и не скачивает external assets. Download выполняется только из binary response собственного backend через `Blob`, `URL.createObjectURL`, временный `<a download>` и обязательный `URL.revokeObjectURL`.
+
+Filename policy:
+
+- frontend показывает поле `Имя файла`;
+- пустое имя, path separators `/` и `\`, control characters и слишком длинные значения отклоняются до запроса;
+- если расширение отсутствует, frontend добавляет `.docx`;
+- `.md` и `.markdown` заменяются на `.docx`;
+- backend остаётся источником финальной нормализации имени и возвращает `Content-Disposition`;
+- filename из `Content-Disposition` повторно нормализуется во frontend перед download.
+
+Diagnostics flow:
+
+- preview diagnostics из `MVP-18` поднимаются в `App` и передаются в export controls;
+- export diagnostics читаются из `X-MD2DOCX-Diagnostics` base64url JSON header;
+- API error diagnostics читаются из JSON error response;
+- локальный export UI показывает preview/export/API diagnostics рядом с кнопкой, не очищая editor/config state.
+
+Единая warnings panel, объединяющая diagnostics всего приложения, остаётся отдельной задачей `MVP-20`.
+
 ### `apps/api`
 
 Backend на Node.js + TypeScript + Fastify.
