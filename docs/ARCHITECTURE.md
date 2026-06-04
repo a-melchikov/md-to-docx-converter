@@ -349,7 +349,46 @@ Diagnostics flow:
 - API error diagnostics читаются из JSON error response;
 - локальный export UI показывает preview/export/API diagnostics рядом с кнопкой, не очищая editor/config state.
 
-Единая warnings panel, объединяющая diagnostics всего приложения, остаётся отдельной задачей `MVP-20`.
+### Diagnostics / Warnings Panel
+
+`MVP-20` добавляет единую frontend-панель `Предупреждения и ошибки`, которая агрегирует diagnostics приложения без изменения backend pipeline.
+
+Источники diagnostics:
+
+- config validation через `@md-to-docx/config-schema`;
+- JSON config mode;
+- Markdown editor/upload frontend validation;
+- Markdown parser diagnostics, пришедшие через preview/convert API;
+- Style Engine diagnostics, пришедшие через preview/convert API;
+- HTML preview diagnostics;
+- DOCX export diagnostics;
+- API errors.
+
+Поток агрегации:
+
+```text
+feature diagnostics
+  -> diagnostics source inputs
+  -> grouped view model
+  -> DiagnosticsPanel
+```
+
+UI использует доменный `Diagnostic` из `@md-to-docx/domain`; frontend view model является только адаптером отображения. Категория определяется по source и prefix кода: `config.*`, `markdown.*`, `style.*`, `preview.*`, `docx.*`, `api.*`, `frontend.*`; неизвестные коды попадают в `Прочее`.
+
+Панель группирует сообщения по severity (`Ошибки`, `Предупреждения`, `Информация`) и category (`Конфигурация`, `Markdown`, `Стили`, `Предпросмотр`, `Экспорт DOCX`, `API`, `Интерфейс`). Для каждого diagnostic отображаются русскоязычный severity label, message, source/category, code, path и source location, если они доступны. Metadata показывается только в раскрываемых технических деталях.
+
+UI не использует цвет как единственный сигнал: severity всегда отображается текстом, фильтры доступны как кнопки, список обновляется с `aria-live="polite"`, а технические детали доступны через `<details>/<summary>`.
+
+Policy очистки diagnostics:
+
+- новый preview response заменяет только preview diagnostics;
+- export заменяет только export diagnostics;
+- config validation diagnostics пересчитываются из текущего `ConversionConfig`;
+- JSON draft diagnostics очищаются при сбросе draft или успешном применении JSON;
+- frontend upload/editor diagnostics очищаются при успешной загрузке, ручном изменении Markdown или очистке editor;
+- unrelated diagnostics не удаляются действиями других feature flows.
+
+Панель не меняет контракты API, не добавляет новые validation rules и не переносит parser/style/DOCX logic во frontend.
 
 ### `apps/api`
 

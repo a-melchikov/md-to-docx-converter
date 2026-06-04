@@ -28,7 +28,7 @@ describe("frontend shell", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Настройки" })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Предупреждения" })
+      screen.getByRole("heading", { name: "Предупреждения и ошибки" })
     ).toBeInTheDocument();
   });
 
@@ -74,7 +74,7 @@ describe("frontend shell", () => {
   it("renders the warnings empty state", () => {
     render(<App />);
 
-    expect(screen.getByText("Предупреждений пока нет")).toBeInTheDocument();
+    expect(screen.getByText("Ошибок и предупреждений нет")).toBeInTheDocument();
   });
 
   it("uses semantic layout regions", () => {

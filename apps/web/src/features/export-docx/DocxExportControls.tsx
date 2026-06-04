@@ -1,6 +1,7 @@
 import type { ConversionConfig } from "@md-to-docx/config-schema";
 import type { Diagnostic } from "@md-to-docx/domain";
 import { pathToString } from "@md-to-docx/domain";
+import { useEffect } from "react";
 
 import type { MarkdownDocumentState } from "../markdown-editor/markdown-document-state.js";
 import { FileNameInput } from "./FileNameInput.js";
@@ -10,12 +11,14 @@ export interface DocxExportControlsProps {
   readonly markdownDocument: MarkdownDocumentState;
   readonly config: ConversionConfig;
   readonly previewDiagnostics: readonly Diagnostic[];
+  readonly onDiagnosticsChange?: ((diagnostics: readonly Diagnostic[]) => void) | undefined;
 }
 
 export function DocxExportControls({
   markdownDocument,
   config,
-  previewDiagnostics
+  previewDiagnostics,
+  onDiagnosticsChange
 }: DocxExportControlsProps) {
   const {
     state,
@@ -30,6 +33,10 @@ export function DocxExportControls({
     previewDiagnostics,
     state.diagnostics
   );
+
+  useEffect(() => {
+    onDiagnosticsChange?.(state.diagnostics);
+  }, [onDiagnosticsChange, state.diagnostics]);
 
   return (
     <section aria-label="Экспорт DOCX" className="docx-export-controls">

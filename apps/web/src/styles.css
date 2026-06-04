@@ -830,6 +830,158 @@ input:focus-visible,
   color: #253241;
 }
 
+.diagnostics-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.diagnostics-summary span {
+  padding: 6px 10px;
+  border: 1px solid #d8e0ea;
+  border-radius: 999px;
+  background: #f7f9fc;
+  color: #2c3a49;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.diagnostics-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.diagnostics-filters [aria-pressed="true"] {
+  border-color: #2f80ed;
+  background: #eaf2ff;
+  color: #174ea6;
+}
+
+.diagnostics-list {
+  display: grid;
+  gap: 14px;
+}
+
+.diagnostics-severity-group,
+.diagnostics-category-group {
+  display: grid;
+  gap: 10px;
+}
+
+.diagnostics-severity-group h3,
+.diagnostics-category-group h4,
+.diagnostics-category-group ul {
+  margin: 0;
+}
+
+.diagnostics-severity-group h3 {
+  font-size: 1rem;
+}
+
+.diagnostics-category-group {
+  padding: 12px;
+  border: 1px solid #d8e0ea;
+  border-radius: 6px;
+  background: #fbfcfe;
+}
+
+.diagnostics-category-group h4 {
+  color: #22303f;
+  font-size: 0.94rem;
+}
+
+.diagnostics-category-group ul {
+  display: grid;
+  gap: 10px;
+  padding-left: 0;
+  list-style: none;
+}
+
+.diagnostics-item {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #e0e6ee;
+  border-left-width: 5px;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.diagnostics-item.severity-error {
+  border-left-color: #d24b4b;
+}
+
+.diagnostics-item.severity-warning {
+  border-left-color: #d2a33d;
+}
+
+.diagnostics-item.severity-info {
+  border-left-color: #2f80ed;
+}
+
+.diagnostics-item-main,
+.diagnostics-item-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.diagnostics-item-message {
+  color: #17202a;
+  font-weight: 700;
+}
+
+.diagnostics-item-context {
+  color: #596879;
+  font-size: 0.88rem;
+}
+
+.diagnostics-technical-details {
+  color: #344457;
+}
+
+.diagnostics-technical-details summary {
+  width: fit-content;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.diagnostics-technical-details dl {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+}
+
+.diagnostics-technical-details dl div {
+  display: grid;
+  gap: 3px;
+}
+
+.diagnostics-technical-details dt {
+  color: #596879;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.diagnostics-technical-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.diagnostics-technical-details pre {
+  max-width: 100%;
+  overflow: auto;
+  margin: 0;
+  padding: 8px;
+  border-radius: 6px;
+  background: #f1f4f8;
+  font-size: 0.82rem;
+}
+
 @media (max-width: 1180px) {
   .workspace {
     grid-template-columns: minmax(280px, 1fr) minmax(320px, 1fr);

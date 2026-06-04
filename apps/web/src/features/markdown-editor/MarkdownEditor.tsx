@@ -12,13 +12,15 @@ export interface MarkdownEditorProps {
   readonly onChange: (content: string) => void;
   readonly onClear: () => void;
   readonly onUpload: (content: string, fileName: string) => void;
+  readonly onUploadErrorChange?: ((message: string | undefined) => void) | undefined;
 }
 
 export function MarkdownEditor({
   document,
   onChange,
   onClear,
-  onUpload
+  onUpload,
+  onUploadErrorChange
 }: MarkdownEditorProps) {
   const editorId = useId();
   const descriptionId = useId();
@@ -53,7 +55,14 @@ export function MarkdownEditor({
 
   function handleUpload(content: string, fileName: string) {
     setClearRequested(false);
+    setUploadErrorMessage(undefined);
+    onUploadErrorChange?.(undefined);
     onUpload(content, fileName);
+  }
+
+  function handleUploadErrorChange(message: string | undefined) {
+    setUploadErrorMessage(message);
+    onUploadErrorChange?.(message);
   }
 
   return (
@@ -69,7 +78,7 @@ export function MarkdownEditor({
       <MarkdownUpload
         fileName={document.fileName}
         onUpload={handleUpload}
-        onUploadErrorChange={setUploadErrorMessage}
+        onUploadErrorChange={handleUploadErrorChange}
       />
 
       <div className="editor-control-row">

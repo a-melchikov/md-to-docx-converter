@@ -1,4 +1,10 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  createDiagnostic,
+  diagnosticCode,
+  documentPathField,
+  type Diagnostic
+} from "@md-to-docx/domain";
 
 import type { ConfigState } from "../../state/config-state.js";
 import {
@@ -8,7 +14,6 @@ import {
   parseJsonConfigDraft,
   readJsonConfigImport
 } from "./json-config-mode.js";
-import type { Diagnostic } from "@md-to-docx/domain";
 
 export interface JsonConfigEditorProps {
   readonly configState: ConfigState;
@@ -16,11 +21,13 @@ export interface JsonConfigEditorProps {
     config: ConfigState["config"],
     source: "json-import" | "json-editor"
   ) => void;
+  readonly onDiagnosticsChange?: ((diagnostics: readonly Diagnostic[]) => void) | undefined;
 }
 
 export function JsonConfigEditor({
   configState,
-  replaceConfig
+  replaceConfig,
+  onDiagnosticsChange
 }: JsonConfigEditorProps) {
   const editorId = useId();
   const statusId = useId();
@@ -38,6 +45,13 @@ export function JsonConfigEditor({
   const [statusMessage, setStatusMessage] = useState("JSON валиден");
 
   const hasErrors = syntaxError !== undefined || diagnostics.length > 0;
+
+  useEffect(() => {
+    onDiagnosticsChange?.([
+      ...(syntaxError ? [createJsonSyntaxDiagnostic(syntaxError)] : []),
+      ...diagnostics
+    ]);
+  }, [diagnostics, onDiagnosticsChange, syntaxError]);
 
   useEffect(() => {
     if (!dirty) {
@@ -187,4 +201,13 @@ export function JsonConfigEditor({
       ) : null}
     </div>
   );
+}
+
+function createJsonSyntaxDiagnostic(message: string): Diagnostic {
+  return createDiagnostic({
+    severity: "error",
+    code: diagnosticCode("frontend.configJson.syntax"),
+    message,
+    path: [documentPathField("config")]
+  });
 }

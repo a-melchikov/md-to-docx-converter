@@ -1,4 +1,10 @@
 import type { ConversionConfig } from "@md-to-docx/config-schema";
+import {
+  createDiagnostic,
+  diagnosticCode,
+  documentPathField,
+  type Diagnostic
+} from "@md-to-docx/domain";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -84,10 +90,13 @@ export function useLivePreview(input: UseLivePreviewInput): PreviewState {
             return;
           }
 
+          const errorMessage = errorMessageFromError(error);
+
           setState((current) => ({
             ...current,
             status: "error",
-            errorMessage: errorMessageFromError(error),
+            diagnostics: [createPreviewErrorDiagnostic(error, errorMessage)],
+            errorMessage,
             requestId:
               error instanceof HttpClientError ? error.requestId : undefined,
             updatedAt: new Date().toISOString()
@@ -138,6 +147,49 @@ function errorMessageFromError(error: unknown): string {
   }
 
   return "Сервер предпросмотра недоступен.";
+}
+
+function createPreviewErrorDiagnostic(
+  error: unknown,
+  message: string
+): Diagnostic {
+  return createDiagnostic({
+    severity: "error",
+    code: diagnosticCode(previewErrorCode(error)),
+    message,
+    path: [documentPathField("preview")],
+    ...(error instanceof HttpClientError
+      ? {
+          metadata: {
+            status: error.status,
+            code: error.code,
+            requestId: error.requestId
+          }
+        }
+      : {})
+  });
+}
+
+function previewErrorCode(error: unknown): string {
+  if (error instanceof HttpClientError) {
+    if (error.status === 413) {
+      return "api.preview.markdownTooLarge";
+    }
+
+    if (error.status === 415) {
+      return "api.preview.unsupportedContentType";
+    }
+
+    if (error.status === 500) {
+      return "api.preview.serverError";
+    }
+
+    return error.code?.startsWith("api.") === true
+      ? error.code
+      : "api.preview.requestFailed";
+  }
+
+  return "api.preview.network";
 }
 
 function isAbortError(error: unknown): boolean {

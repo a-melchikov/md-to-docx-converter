@@ -130,8 +130,8 @@ describe("PreviewPanel", () => {
     await advancePreviewDebounce();
 
     expect(
-      screen.getByText("Сервер предпросмотра недоступен.")
-    ).toBeInTheDocument();
+      screen.getAllByText("Сервер предпросмотра недоступен.").length
+    ).toBeGreaterThan(0);
     expect(screen.getByLabelText("Масштаб предпросмотра")).toHaveValue("90");
     expect(onZoomChange).not.toHaveBeenCalled();
   });
@@ -160,8 +160,8 @@ describe("PreviewPanel", () => {
     await advancePreviewDebounce();
 
     expect(
-      screen.getByText("Markdown слишком большой для предпросмотра.")
-    ).toBeInTheDocument();
+      screen.getAllByText("Markdown слишком большой для предпросмотра.").length
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Request ID: req-123")).toBeInTheDocument();
   });
 
@@ -184,8 +184,8 @@ describe("PreviewPanel", () => {
     await advancePreviewDebounce();
 
     expect(
-      screen.getByText("Сервер предпросмотра недоступен.")
-    ).toBeInTheDocument();
+      screen.getAllByText("Сервер предпросмотра недоступен.").length
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Успешный предпросмотр")).toBeInTheDocument();
   });
 

@@ -111,7 +111,7 @@ describe("DocxExportControls", () => {
 
     expect(
       screen.getAllByText("Имя файла содержит недопустимые символы.")
-    ).toHaveLength(2);
+    ).toHaveLength(3);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -124,7 +124,7 @@ describe("DocxExportControls", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Скачать DOCX" }));
 
-    expect(screen.getAllByText("Имя файла не может быть пустым.")).toHaveLength(2);
+    expect(screen.getAllByText("Имя файла не может быть пустым.")).toHaveLength(3);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -137,7 +137,7 @@ describe("DocxExportControls", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Скачать DOCX" }));
 
-    expect(screen.getAllByText("Имя файла слишком длинное.")).toHaveLength(2);
+    expect(screen.getAllByText("Имя файла слишком длинное.")).toHaveLength(3);
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -189,11 +189,11 @@ describe("DocxExportControls", () => {
       await screen.findByLabelText("Предупреждения экспорта")
     ).toBeInTheDocument();
     expect(
-      screen.getByText(
+      screen.getAllByText(
         "Изображение не было встроено: отсутствуют бинарные данные asset."
-      )
-    ).toBeInTheDocument();
-    expect(screen.getByText("Код: docx.image.missingAsset")).toBeInTheDocument();
+      ).length
+    ).toBeGreaterThan(0);
+    expect(screen.getAllByText("Код: docx.image.missingAsset").length).toBeGreaterThan(0);
   });
 
   it("keeps preview warnings visible after export diagnostics arrive", async () => {
@@ -218,10 +218,10 @@ describe("DocxExportControls", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Скачать DOCX" }));
 
-    await screen.findByText("Для списка использована fallback-нумерация.");
+    await screen.findAllByText("Для списка использована fallback-нумерация.");
     expect(
-      screen.getByText("Предпросмотр работает в быстром режиме.")
-    ).toBeInTheDocument();
+      screen.getAllByText("Предпросмотр работает в быстром режиме.").length
+    ).toBeGreaterThan(0);
   });
 
   it("shows a Russian network error", async () => {
@@ -234,8 +234,8 @@ describe("DocxExportControls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Скачать DOCX" }));
 
     expect(
-      await screen.findByText("Сервер конвертации недоступен.")
-    ).toBeInTheDocument();
+      (await screen.findAllByText("Сервер конвертации недоступен.")).length
+    ).toBeGreaterThan(0);
   });
 
   it("shows a Russian invalid config error with diagnostics", async () => {
@@ -269,12 +269,16 @@ describe("DocxExportControls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Скачать DOCX" }));
 
     expect(
-      await screen.findByText(
-        "Конфигурация содержит ошибки. Исправьте настройки и повторите попытку."
-      )
-    ).toBeInTheDocument();
+      (
+        await screen.findAllByText(
+          "Конфигурация содержит ошибки. Исправьте настройки и повторите попытку."
+        )
+      ).length
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Request ID: req-config")).toBeInTheDocument();
-    expect(screen.getByText("Поле \"version\" обязательно.")).toBeInTheDocument();
+    expect(
+      screen.getAllByText("Поле \"version\" обязательно.").length
+    ).toBeGreaterThan(0);
   });
 
   it("shows a Russian markdown size error", async () => {
@@ -300,8 +304,8 @@ describe("DocxExportControls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Скачать DOCX" }));
 
     expect(
-      await screen.findByText("Markdown слишком большой для конвертации.")
-    ).toBeInTheDocument();
+      (await screen.findAllByText("Markdown слишком большой для конвертации.")).length
+    ).toBeGreaterThan(0);
   });
 
   it("shows a Russian error for unexpected content type", async () => {
@@ -321,8 +325,8 @@ describe("DocxExportControls", () => {
     fireEvent.click(screen.getByRole("button", { name: "Скачать DOCX" }));
 
     expect(
-      await screen.findByText("Сервер вернул неожиданный формат ответа.")
-    ).toBeInTheDocument();
+      (await screen.findAllByText("Сервер вернул неожиданный формат ответа.")).length
+    ).toBeGreaterThan(0);
   });
 
   it("supports repeated export after a successful export", async () => {
@@ -362,7 +366,7 @@ describe("DOCX export integration in App", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Скачать DOCX" }));
 
-    await screen.findByText("Сервер конвертации недоступен.");
+    await screen.findAllByText("Сервер конвертации недоступен.");
     expect(screen.getByRole("textbox", { name: "Markdown-текст" })).toHaveValue(
       "# Сохранить текст"
     );
@@ -380,7 +384,7 @@ describe("DOCX export integration in App", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Скачать DOCX" }));
 
-    await screen.findByText("Сервер конвертации недоступен.");
+    await screen.findAllByText("Сервер конвертации недоступен.");
     expect(screen.getByLabelText("Размер страницы")).toHaveValue("A3");
   });
 });

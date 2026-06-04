@@ -1,3 +1,4 @@
+import type { Diagnostic } from "@md-to-docx/domain";
 import { useState } from "react";
 
 import type { ConfigState, ConfigUpdater } from "../../state/config-state.js";
@@ -33,12 +34,14 @@ export interface StyleSettingsPanelProps {
     config: ConfigState["config"],
     source: "json-import" | "json-editor"
   ) => void;
+  readonly onJsonDiagnosticsChange?: ((diagnostics: readonly Diagnostic[]) => void) | undefined;
 }
 
 export function StyleSettingsPanel({
   configState,
   updateConfig,
-  replaceConfig
+  replaceConfig,
+  onJsonDiagnosticsChange
 }: StyleSettingsPanelProps) {
   const [activeSection, setActiveSection] =
     useState<StyleSettingsSection>("Документ");
@@ -129,6 +132,7 @@ export function StyleSettingsPanel({
         >
           <JsonConfigEditor
             configState={configState}
+            onDiagnosticsChange={onJsonDiagnosticsChange}
             replaceConfig={replaceConfig}
           />
         </div>

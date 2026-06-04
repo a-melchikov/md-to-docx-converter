@@ -1,5 +1,10 @@
 import type { ConversionConfig } from "@md-to-docx/config-schema";
-import type { Diagnostic } from "@md-to-docx/domain";
+import {
+  createDiagnostic,
+  diagnosticCode,
+  documentPathField,
+  type Diagnostic
+} from "@md-to-docx/domain";
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -68,10 +73,17 @@ export function useDocxExport({
     }
 
     if (markdownDocument.content.trim().length === 0) {
+      const diagnostic = createExportDiagnostic({
+        code: "frontend.export.emptyMarkdown",
+        message: "Введите Markdown перед экспортом DOCX.",
+        field: "markdown"
+      });
+
       setState((current) => ({
         ...current,
         status: "error",
-        errorMessage: "Введите Markdown перед экспортом DOCX.",
+        diagnostics: [diagnostic],
+        errorMessage: diagnostic.message,
         requestId: undefined
       }));
       return;
@@ -80,11 +92,18 @@ export function useDocxExport({
     const fileNameValidation = normalizeDocxFileName(fileNameInput);
 
     if (!fileNameValidation.valid) {
+      const diagnostic = createExportDiagnostic({
+        code: "frontend.export.invalidFileName",
+        message: fileNameValidation.message,
+        field: "options.fileName"
+      });
+
       setFileNameError(fileNameValidation.message);
       setState((current) => ({
         ...current,
         status: "error",
-        errorMessage: fileNameValidation.message,
+        diagnostics: [diagnostic],
+        errorMessage: diagnostic.message,
         requestId: undefined
       }));
       return;
@@ -124,12 +143,28 @@ export function useDocxExport({
       });
       setFileNameInputState(downloadFileName);
     } catch (error) {
+      const errorMessage = errorMessageFromExportError(error);
+      const errorDiagnostic = createExportDiagnostic({
+        code: exportErrorCode(error),
+        message: errorMessage,
+        metadata:
+          error instanceof ConvertApiError
+            ? {
+                status: error.status,
+                code: error.code,
+                requestId: error.requestId
+              }
+            : undefined
+      });
+
       setState((current) => ({
         ...current,
         status: "error",
         diagnostics:
-          error instanceof ConvertApiError ? error.diagnostics : current.diagnostics,
-        errorMessage: errorMessageFromExportError(error),
+          error instanceof ConvertApiError
+            ? [errorDiagnostic, ...error.diagnostics]
+            : [errorDiagnostic],
+        errorMessage,
         requestId: error instanceof ConvertApiError ? error.requestId : undefined
       }));
     }
@@ -142,6 +177,23 @@ export function useDocxExport({
     setFileNameInput,
     exportDocx
   };
+}
+
+function createExportDiagnostic(input: {
+  readonly code: string;
+  readonly message: string;
+  readonly field?: string | undefined;
+  readonly metadata?: Diagnostic["metadata"];
+}): Diagnostic {
+  return createDiagnostic({
+    severity: "error",
+    code: diagnosticCode(input.code),
+    message: input.message,
+    ...(input.field === undefined
+      ? {}
+      : { path: [documentPathField(input.field)] }),
+    ...(input.metadata === undefined ? {} : { metadata: input.metadata })
+  });
 }
 
 function errorMessageFromExportError(error: unknown): string {
@@ -180,6 +232,20 @@ function errorMessageFromExportError(error: unknown): string {
   }
 
   return "Сервер конвертации недоступен.";
+}
+
+function exportErrorCode(error: unknown): string {
+  if (error instanceof ConvertApiError) {
+    if (error.code === "convert.unexpectedContentType") {
+      return "api.export.unexpectedContentType";
+    }
+
+    return error.code.startsWith("api.") || error.code.startsWith("convert.")
+      ? error.code
+      : "api.export.requestFailed";
+  }
+
+  return "api.export.network";
 }
 
 export function mergeExportDiagnostics(

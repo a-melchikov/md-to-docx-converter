@@ -1,6 +1,14 @@
-import type { Diagnostic } from "@md-to-docx/domain";
-import { useState } from "react";
+import { validateConfig } from "@md-to-docx/config-schema";
+import {
+  createDiagnostic,
+  diagnosticCode,
+  documentPathField,
+  type Diagnostic
+} from "@md-to-docx/domain";
+import { useMemo, useState } from "react";
 
+import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel.js";
+import type { DiagnosticSourceInput } from "./features/diagnostics/diagnostics-source.js";
 import { DocxExportControls } from "./features/export-docx/DocxExportControls.js";
 import { MarkdownEditor } from "./features/markdown-editor/MarkdownEditor.js";
 import { useMarkdownDocument } from "./features/markdown-editor/useMarkdownDocument.js";
@@ -26,6 +34,70 @@ export function App() {
   const [previewDiagnostics, setPreviewDiagnostics] = useState<
     readonly Diagnostic[]
   >([]);
+  const [exportDiagnostics, setExportDiagnostics] = useState<
+    readonly Diagnostic[]
+  >([]);
+  const [jsonConfigDiagnostics, setJsonConfigDiagnostics] = useState<
+    readonly Diagnostic[]
+  >([]);
+  const [frontendDiagnostics, setFrontendDiagnostics] = useState<
+    readonly Diagnostic[]
+  >([]);
+  const configValidationDiagnostics = useMemo(
+    () => validateConfig(configState.config).diagnostics,
+    [configState.config]
+  );
+  const diagnosticSources = useMemo<readonly DiagnosticSourceInput[]>(
+    () => [
+      {
+        source: "config",
+        diagnostics: [
+          ...configValidationDiagnostics,
+          ...jsonConfigDiagnostics
+        ]
+      },
+      { source: "preview", diagnostics: previewDiagnostics },
+      { source: "export", diagnostics: exportDiagnostics },
+      { source: "frontend", diagnostics: frontendDiagnostics }
+    ],
+    [
+      configValidationDiagnostics,
+      exportDiagnostics,
+      frontendDiagnostics,
+      jsonConfigDiagnostics,
+      previewDiagnostics
+    ]
+  );
+
+  function handleUploadErrorChange(message: string | undefined) {
+    setFrontendDiagnostics(
+      message === undefined
+        ? []
+        : [
+            createDiagnostic({
+              severity: "error",
+              code: diagnosticCode("frontend.upload.validation"),
+              message,
+              path: [documentPathField("markdown")]
+            })
+          ]
+    );
+  }
+
+  function handleMarkdownChange(content: string) {
+    setFrontendDiagnostics([]);
+    updateContent(content);
+  }
+
+  function handleMarkdownClear() {
+    setFrontendDiagnostics([]);
+    clearContent();
+  }
+
+  function handleMarkdownUpload(content: string, fileName: string) {
+    setFrontendDiagnostics([]);
+    replaceWithUploadedFile(content, fileName);
+  }
 
   return (
     <div className="app-shell">
@@ -50,6 +122,7 @@ export function App() {
           <DocxExportControls
             config={configState.config}
             markdownDocument={markdownDocument}
+            onDiagnosticsChange={setExportDiagnostics}
             previewDiagnostics={previewDiagnostics}
           />
         </nav>
@@ -62,9 +135,10 @@ export function App() {
         >
           <MarkdownEditor
             document={markdownDocument}
-            onChange={updateContent}
-            onClear={clearContent}
-            onUpload={replaceWithUploadedFile}
+            onChange={handleMarkdownChange}
+            onClear={handleMarkdownClear}
+            onUpload={handleMarkdownUpload}
+            onUploadErrorChange={handleUploadErrorChange}
           />
         </section>
 
@@ -87,6 +161,7 @@ export function App() {
         >
           <StyleSettingsPanel
             configState={configState}
+            onJsonDiagnosticsChange={setJsonConfigDiagnostics}
             replaceConfig={replaceConfig}
             updateConfig={updateConfig}
           />
@@ -96,20 +171,7 @@ export function App() {
           className="panel warnings-panel"
           aria-labelledby="warnings-heading"
         >
-          <div className="panel-heading">
-            <div>
-              <p className="panel-label">Диагностика</p>
-              <h2 id="warnings-heading">Предупреждения</h2>
-            </div>
-            <span className="panel-status">0</span>
-          </div>
-          <div className="empty-warning-state" role="status">
-            <strong>Предупреждений пока нет</strong>
-            <span>
-              Реальные предупреждения появятся здесь после интеграции конвейера
-              обработки в MVP-20.
-            </span>
-          </div>
+          <DiagnosticsPanel sources={diagnosticSources} />
         </section>
       </main>
     </div>
