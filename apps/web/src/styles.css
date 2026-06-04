@@ -382,12 +382,20 @@ input:focus-visible,
   gap: 8px;
 }
 
-.settings-tab {
+.settings-mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.settings-tab,
+.settings-mode-tab {
   text-align: left;
   background: #f7f9fc;
 }
 
-.settings-tab[aria-selected="true"] {
+.settings-tab[aria-selected="true"],
+.settings-mode-tab[aria-selected="true"] {
   border-color: #2f80ed;
   background: #eaf2ff;
   color: #174ea6;
@@ -397,6 +405,10 @@ input:focus-visible,
   margin-top: 14px;
   border-top: 1px solid #e0e6ee;
   padding-top: 14px;
+}
+
+.settings-section-panel {
+  margin-top: 14px;
 }
 
 .settings-form {
@@ -494,6 +506,79 @@ input:focus-visible,
   margin: 0;
   color: #1f2d3a;
   font-size: 0.98rem;
+}
+
+.json-config-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.json-config-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.json-config-textarea {
+  width: 100%;
+  min-height: 480px;
+  resize: vertical;
+  border: 1px solid #bcc8d6;
+  border-radius: 6px;
+  padding: 12px;
+  color: #17202a;
+  background: #fbfcfe;
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  tab-size: 2;
+}
+
+.json-config-status {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid #c7d4e4;
+  border-radius: 6px;
+  background: #f7f9fc;
+  color: #4b5968;
+  line-height: 1.4;
+}
+
+.json-config-status strong {
+  color: #1f2d3a;
+}
+
+.json-config-errors {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #d24b4b;
+  border-radius: 6px;
+  background: #fff3f3;
+  color: #8f1f1f;
+}
+
+.json-config-errors h3,
+.json-config-errors p,
+.json-config-errors ul {
+  margin: 0;
+}
+
+.json-config-errors ul {
+  display: grid;
+  gap: 8px;
+  padding-left: 20px;
+}
+
+.json-config-errors li {
+  display: grid;
+  gap: 4px;
+}
+
+.json-config-errors small {
+  color: #6f3131;
 }
 
 .settings-readout dl {
@@ -605,6 +690,15 @@ input:focus-visible,
 
   .settings-tabs {
     grid-template-columns: 1fr;
+  }
+
+  .settings-mode-tabs,
+  .json-config-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .json-config-toolbar {
+    display: grid;
   }
 
   .settings-row {

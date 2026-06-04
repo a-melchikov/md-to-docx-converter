@@ -75,6 +75,9 @@ importers:
       '@md-to-docx/config-schema':
         specifier: workspace:*
         version: link:../../packages/config-schema
+      '@md-to-docx/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       react:
         specifier: ^19.2.7
         version: 19.2.7

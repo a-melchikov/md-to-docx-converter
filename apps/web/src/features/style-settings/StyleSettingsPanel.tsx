@@ -5,6 +5,7 @@ import { CodeSettingsForm } from "./CodeSettingsForm.js";
 import { DocumentSettingsForm } from "./DocumentSettingsForm.js";
 import { FontSettingsForm } from "./FontSettingsForm.js";
 import { HeadingSettingsForm } from "./HeadingSettingsForm.js";
+import { JsonConfigEditor } from "./JsonConfigEditor.js";
 import { ListSettingsForm } from "./ListSettingsForm.js";
 import { PageMarginsForm } from "./PageMarginsForm.js";
 import { ParagraphSettingsForm } from "./ParagraphSettingsForm.js";
@@ -28,14 +29,21 @@ type StyleSettingsSection = (typeof settingsSections)[number];
 export interface StyleSettingsPanelProps {
   readonly configState: ConfigState;
   readonly updateConfig: (updater: ConfigUpdater) => void;
+  readonly replaceConfig: (
+    config: ConfigState["config"],
+    source: "json-import" | "json-editor"
+  ) => void;
 }
 
 export function StyleSettingsPanel({
   configState,
-  updateConfig
+  updateConfig,
+  replaceConfig
 }: StyleSettingsPanelProps) {
   const [activeSection, setActiveSection] =
     useState<StyleSettingsSection>("Документ");
+  const [activeMode, setActiveMode] =
+    useState<"visual" | "json">("visual");
 
   return (
     <>
@@ -48,38 +56,83 @@ export function StyleSettingsPanel({
           {configState.isDirty ? "изменено" : "по умолчанию"}
         </span>
       </div>
-      <div
-        className="settings-tabs"
-        role="tablist"
-        aria-label="Разделы настроек"
-      >
-        {settingsSections.map((section) => (
-          <button
-            aria-controls={`settings-panel-${section}`}
-            aria-selected={activeSection === section}
-            className="settings-tab"
-            id={`settings-tab-${section}`}
-            key={section}
-            role="tab"
-            type="button"
-            onClick={() => setActiveSection(section)}
+      <div className="settings-mode-tabs" role="tablist" aria-label="Режим настроек">
+        <button
+          aria-controls="settings-visual-mode"
+          aria-selected={activeMode === "visual"}
+          className="settings-mode-tab"
+          id="settings-mode-visual"
+          role="tab"
+          type="button"
+          onClick={() => setActiveMode("visual")}
+        >
+          Визуальный режим
+        </button>
+        <button
+          aria-controls="settings-json-mode"
+          aria-selected={activeMode === "json"}
+          className="settings-mode-tab"
+          id="settings-mode-json"
+          role="tab"
+          type="button"
+          onClick={() => setActiveMode("json")}
+        >
+          JSON-режим
+        </button>
+      </div>
+      {activeMode === "visual" ? (
+        <div
+          aria-labelledby="settings-mode-visual"
+          className="settings-readout"
+          id="settings-visual-mode"
+          role="tabpanel"
+        >
+          <div
+            className="settings-tabs"
+            role="tablist"
+            aria-label="Разделы настроек"
           >
-            {section}
-          </button>
-        ))}
-      </div>
-      <div
-        aria-labelledby={`settings-tab-${activeSection}`}
-        className="settings-readout"
-        id={`settings-panel-${activeSection}`}
-        role="tabpanel"
-      >
-        {renderSettingsSection(activeSection, configState, updateConfig)}
-        <p className="helper-text">
-          Эти визуальные поля обновляют общую модель конфигурации. JSON
-          import/export будет реализован в MVP-17.
-        </p>
-      </div>
+            {settingsSections.map((section) => (
+              <button
+                aria-controls={`settings-panel-${section}`}
+                aria-selected={activeSection === section}
+                className="settings-tab"
+                id={`settings-tab-${section}`}
+                key={section}
+                role="tab"
+                type="button"
+                onClick={() => setActiveSection(section)}
+              >
+                {section}
+              </button>
+            ))}
+          </div>
+          <div
+            aria-labelledby={`settings-tab-${activeSection}`}
+            className="settings-section-panel"
+            id={`settings-panel-${activeSection}`}
+            role="tabpanel"
+          >
+            {renderSettingsSection(activeSection, configState, updateConfig)}
+            <p className="helper-text">
+              Эти визуальные поля обновляют общую модель конфигурации. JSON
+              import/export доступен в JSON-режиме.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div
+          aria-labelledby="settings-mode-json"
+          className="settings-readout"
+          id="settings-json-mode"
+          role="tabpanel"
+        >
+          <JsonConfigEditor
+            configState={configState}
+            replaceConfig={replaceConfig}
+          />
+        </div>
+      )}
     </>
   );
 }

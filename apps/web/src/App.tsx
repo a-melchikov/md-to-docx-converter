@@ -19,7 +19,7 @@ export function App() {
     clearContent,
     replaceWithUploadedFile
   } = useMarkdownDocument();
-  const { state: configState, updateConfig } = useConfigState();
+  const { state: configState, updateConfig, replaceConfig } = useConfigState();
   const [previewZoom, setPreviewZoom] = useState(100);
 
   return (
@@ -101,6 +101,7 @@ export function App() {
         >
           <StyleSettingsPanel
             configState={configState}
+            replaceConfig={replaceConfig}
             updateConfig={updateConfig}
           />
         </aside>

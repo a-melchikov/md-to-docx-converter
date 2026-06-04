@@ -233,6 +233,47 @@ ConfigState {
 
 JSON import/export остаётся отдельной задачей `MVP-17`. Live preview и DOCX export используют этот же config state в `MVP-18` и `MVP-19`; API calls, Markdown parsing, DOCX generation и fake preview pipeline не входят в `MVP-16`.
 
+### JSON Config Import/Export Mode
+
+`MVP-17` добавляет JSON mode в зоне настроек без отдельной frontend-схемы и без backend endpoint.
+
+Поток данных:
+
+```text
+visual settings
+  -> shared config state
+  -> JSON representation
+  -> JSON validation
+  -> shared config state
+```
+
+Visual mode и JSON mode работают с одной моделью `ConversionConfig`. JSON representation строится из текущего `ConfigState.config` через pretty JSON с отступом 2 пробела. JSON draft хранится отдельно от основного config state и не применяется автоматически: основной config меняется только после явного `Применить JSON` или успешного import `.json` файла.
+
+Validation rules:
+
+- JSON syntax проверяется до schema validation;
+- schema validation выполняется только через `@md-to-docx/config-schema.parseConfig()`;
+- `apps/web` не содержит собственной JSON Schema, Zod/Ajv-схемы или дублирующих правил;
+- validation diagnostics отображаются пользователю на русском языке с path/code, но raw Ajv errors не являются UI-контрактом.
+
+Round-trip:
+
+```text
+visual mode
+  -> config state
+  -> JSON mode draft
+  -> edit/import JSON
+  -> validation
+  -> config state
+  -> visual mode
+```
+
+Изменения visual settings отражаются в JSON mode, если пользователь не держит несохранённый JSON draft. Валидный JSON из editor/import заменяет весь `ConversionConfig`, поэтому visual controls после переключения показывают применённые значения. Невалидный JSON сохраняется как draft для исправления, но не затирает текущую валидную конфигурацию.
+
+Export JSON выгружает только `ConversionConfig`: `active tab`, `isDirty`, `source`, `lastUpdatedAt`, temporary draft и validation UI state не экспортируются. Import принимает только один `.json` файл, проверяет размер и не обходит общую schema validation.
+
+Live preview и DOCX export остаются отдельными задачами `MVP-18` и `MVP-19`. JSON mode не вызывает Markdown parser, Style Engine, DOCX adapter, HTML preview или API.
+
 ### `apps/api`
 
 Backend на Node.js + TypeScript + Fastify.
