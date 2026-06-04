@@ -785,6 +785,40 @@ routes
 
 Route handlers отвечают только за HTTP-level работу: чтение request, вызов controller/service, формирование response.
 
+### API Skeleton
+
+`apps/api` реализует Fastify runtime как отдельное приложение без бизнес-логики в route handlers.
+
+Структура слоёв:
+
+```text
+routes
+  -> controllers
+  -> services
+  -> packages/*
+```
+
+Правило для handlers: route регистрирует HTTP method/path и вызывает controller; controller формирует HTTP-level ответ; service содержит минимальную application-level операцию. Интеграция с `packages/md-parser`, `packages/style-engine`, `packages/docx-adapter`, `packages/html-preview` и `packages/config-schema` добавляется только в соответствующих MVP-задачах.
+
+App factory:
+
+```text
+buildApp(options?) -> Promise<FastifyInstance>
+```
+
+`buildApp()` регистрирует middleware/plugins/routes, но не вызывает `listen()`. Сервер запускается отдельно из `apps/api/src/index.ts`, поэтому tests используют `buildApp()` через `app.inject()` без открытия порта.
+
+Подключённые middleware/plugins:
+
+- request-id: принимает `x-request-id` или генерирует новый request id, добавляет его в response header и logger context;
+- logging: Fastify/Pino logger с редактированием sensitive headers, без логирования multipart body;
+- CORS: origin берётся из env, local default `http://localhost:5173`, wildcard запрещён для production;
+- rate limit: `@fastify/rate-limit`, лимиты берутся из env;
+- multipart: `@fastify/multipart`, включены только size/files/fields limits без upload handling;
+- sensible: базовые HTTP helpers Fastify.
+
+`GET /api/v1/health` и `GET /api/v1/ready` являются единственными рабочими endpoints в `MVP-10`. Endpoint-ы `POST /api/v1/configs/validate`, `POST /api/v1/preview/html` и `POST /api/v1/convert` реализуются отдельно в `MVP-11`, `MVP-12` и `MVP-13`.
+
 ## Preview
 
 MVP:

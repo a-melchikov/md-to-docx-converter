@@ -1,10 +1,2 @@
-import {
-  type ConfigValidationResult,
-  validateConfig
-} from "@md-to-docx/config-schema";
-
-export type ApiAppPackageName = "@md-to-docx/api";
-
-export const validateApiConfig: (
-  config: unknown
-) => ConfigValidationResult = validateConfig;
+export { buildApp, startApi } from "./index.js";
+export type { BuildAppOptions } from "./index.js";

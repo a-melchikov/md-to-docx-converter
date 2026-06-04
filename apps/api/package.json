@@ -4,12 +4,20 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint src --max-warnings=0",
+    "lint": "eslint src test --max-warnings=0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@md-to-docx/config-schema": "workspace:*"
+    "@fastify/cors": "^11.2.0",
+    "@fastify/multipart": "^10.0.0",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/sensible": "^6.0.4",
+    "@md-to-docx/config-schema": "workspace:*",
+    "fastify": "^5.8.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1"
   }
 }
