@@ -1,13 +1,8 @@
-import { useId, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { defaultConfig } from "@md-to-docx/config-schema";
 
-const initialMarkdown = `# Заголовок документа
-
-Короткий абзац Markdown для будущей конвертации в DOCX.
-
-- Первый пункт
-- Второй пункт
-`;
+import { MarkdownEditor } from "./features/markdown-editor/MarkdownEditor.js";
+import { useMarkdownDocument } from "./features/markdown-editor/useMarkdownDocument.js";
 
 const toolbarActions = [
   "Открыть Markdown",
@@ -28,9 +23,12 @@ const settingsTabs = [
 type SettingsTab = (typeof settingsTabs)[number];
 
 export function App() {
-  const editorId = useId();
-  const editorDescriptionId = useId();
-  const [markdownDraft, setMarkdownDraft] = useState(initialMarkdown);
+  const {
+    document: markdownDocument,
+    updateContent,
+    clearContent,
+    replaceWithUploadedFile
+  } = useMarkdownDocument();
   const [activeSettingsTab, setActiveSettingsTab] =
     useState<SettingsTab>("Документ");
   const [previewZoom, setPreviewZoom] = useState(100);
@@ -67,27 +65,12 @@ export function App() {
           className="panel editor-panel"
           aria-labelledby="editor-heading"
         >
-          <div className="panel-heading">
-            <div>
-              <p className="panel-label">Ввод</p>
-              <h2 id="editor-heading">Редактор Markdown</h2>
-            </div>
-            <span className="panel-status">Черновик</span>
-          </div>
-          <label className="field-label" htmlFor={editorId}>
-            Markdown-текст
-          </label>
-          <textarea
-            aria-describedby={editorDescriptionId}
-            className="markdown-editor"
-            id={editorId}
-            spellCheck={false}
-            value={markdownDraft}
-            onChange={(event) => setMarkdownDraft(event.target.value)}
+          <MarkdownEditor
+            document={markdownDocument}
+            onChange={updateContent}
+            onClear={clearContent}
+            onUpload={replaceWithUploadedFile}
           />
-          <p className="helper-text" id={editorDescriptionId}>
-            Полноценный редактор и загрузка файлов будут реализованы в MVP-15.
-          </p>
         </section>
 
         <section
@@ -119,7 +102,8 @@ export function App() {
             >
               <div className="preview-page-content">
                 <p className="preview-placeholder">
-                  Предпросмотр будет построен через API /api/v1/preview/html
+                  Предпросмотр будет реализован в MVP-18 через API
+                  /api/v1/preview/html
                 </p>
               </div>
             </div>

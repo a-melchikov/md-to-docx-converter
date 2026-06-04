@@ -1,7 +1,11 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "../src/App.js";
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("frontend shell", () => {
   it("renders the application shell", () => {
@@ -90,7 +94,44 @@ describe("frontend shell", () => {
     render(<App />);
 
     expect(
-      screen.getByText("Предпросмотр будет построен через API /api/v1/preview/html")
+      screen.getByText(/Предпросмотр будет реализован в MVP-18/)
     ).toBeInTheDocument();
   });
+
+  it("does not call preview or export APIs while editing Markdown", () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+    render(<App />);
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Markdown-текст" }), {
+      target: { value: "# Новый документ" }
+    });
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("updates application Markdown state from uploaded file", async () => {
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText("Выбрать Markdown-файл"), {
+      target: {
+        files: [markdownFile("uploaded.md", "# Загруженный документ")]
+      }
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("textbox", { name: "Markdown-текст" })
+      ).toHaveValue("# Загруженный документ");
+    });
+    expect(screen.getByText("Файл: uploaded.md")).toBeInTheDocument();
+  });
 });
+
+function markdownFile(name: string, content: string): File {
+  const file = new File([content], name, { type: "text/markdown" });
+  Object.defineProperty(file, "text", {
+    value: () => Promise.resolve(content)
+  });
+  return file;
+}

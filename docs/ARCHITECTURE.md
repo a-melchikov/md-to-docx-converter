@@ -159,12 +159,43 @@ Layout должен оставаться русскоязычным, responsive 
 
 Будущие frontend задачи:
 
-- `MVP-15` - Markdown editor/upload;
 - `MVP-16` - visual style settings;
 - `MVP-17` - JSON import/export;
 - `MVP-18` - live preview integration;
 - `MVP-19` - DOCX export integration;
 - `MVP-20` - warnings panel.
+
+### Markdown Input Flow
+
+`MVP-15` добавляет frontend input flow для Markdown без backend upload endpoint и без запуска parser/preview/export pipeline в браузере.
+
+Поток данных:
+
+```text
+manual input / file upload / drag and drop
+  -> frontend MarkdownDocumentState
+  -> future MVP-18 live preview
+  -> future MVP-19 DOCX export
+```
+
+`MarkdownDocumentState` хранит:
+
+- `content` - текущий Markdown-текст;
+- `fileName` - имя загруженного файла, если источник upload;
+- `lastUpdatedAt` - время последнего изменения;
+- `source` - `manual`, `upload` или `example`.
+
+Frontend validation выполняется до замены editor state:
+
+- разрешён только один файл;
+- разрешены расширения `.md`, `.markdown`, `.txt`;
+- MIME type учитывается, но не является единственной проверкой;
+- file size ограничен frontend limit;
+- длина Markdown ограничена frontend limit;
+- пустой файл возвращает русскоязычную ошибку;
+- drag and drop использует тот же validation/read слой, что и file input.
+
+Backend upload endpoint для Markdown не создаётся в MVP-15. В `MVP-18` и `MVP-19` Markdown будет отправляться в API как text payload, а backend всё равно обязан повторно применять input limits и request validation. Live preview и DOCX export реализуются отдельными задачами и используют уже подготовленный frontend Markdown state.
 
 ### `apps/api`
 
