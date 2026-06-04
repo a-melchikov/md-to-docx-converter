@@ -1,0 +1,56 @@
+# syntax=docker/dockerfile:1.7
+
+ARG NODE_VERSION=24
+
+FROM node:${NODE_VERSION}-alpine AS base
+WORKDIR /workspace
+
+ENV PNPM_HOME=/pnpm
+ENV PATH="${PNPM_HOME}:${PATH}"
+
+RUN apk add --no-cache wget \
+  && corepack enable \
+  && corepack prepare pnpm@9.15.4 --activate
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+COPY packages/domain/package.json packages/domain/package.json
+COPY packages/config-schema/package.json packages/config-schema/package.json
+COPY packages/md-parser/package.json packages/md-parser/package.json
+COPY packages/style-engine/package.json packages/style-engine/package.json
+COPY packages/docx-adapter/package.json packages/docx-adapter/package.json
+COPY packages/html-preview/package.json packages/html-preview/package.json
+
+RUN pnpm install --frozen-lockfile
+
+FROM base AS build
+
+ARG VITE_API_BASE_URL=/api
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+
+COPY . .
+RUN pnpm -r --filter @md-to-docx/web... build
+
+FROM base AS dev
+
+ENV NODE_ENV=development
+ENV VITE_API_BASE_URL=/api
+
+COPY . .
+
+EXPOSE 80
+
+CMD ["sh", "-c", "pnpm -r --filter @md-to-docx/web... build && (pnpm -r --parallel --filter './packages/*' dev & pnpm --filter @md-to-docx/web exec vite --host 0.0.0.0 --port 80)"]
+
+FROM nginx:1.27-alpine AS runtime
+
+COPY infra/nginx/web-static.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /workspace/apps/web/dist /usr/share/nginx/html
+
+RUN printf "ok\n" > /usr/share/nginx/html/healthz
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://127.0.0.1/healthz >/dev/null || exit 1

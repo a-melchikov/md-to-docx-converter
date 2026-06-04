@@ -7,7 +7,9 @@
     "lint": "eslint src test --max-warnings=0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "dev": "sh -c 'tsc -p tsconfig.json && (tsc -p tsconfig.json --watch --preserveWatchOutput & node --watch dist/index.js)'",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",

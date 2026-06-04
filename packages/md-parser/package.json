@@ -13,7 +13,8 @@
     "lint": "eslint src tests --max-warnings=0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput"
   },
   "dependencies": {
     "@md-to-docx/domain": "workspace:*",

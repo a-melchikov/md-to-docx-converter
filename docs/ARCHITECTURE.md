@@ -390,6 +390,68 @@ Policy очистки diagnostics:
 
 Панель не меняет контракты API, не добавляет новые validation rules и не переносит parser/style/DOCX logic во frontend.
 
+### Docker / nginx Deployment
+
+`MVP-21` добавляет Docker Compose и nginx для двух режимов запуска без локального Node.js на host.
+
+Production-like topology:
+
+```text
+browser
+  -> nginx
+  -> frontend static files через web service
+  -> /api/* proxy
+  -> api
+```
+
+Production-like режим использует `docker-compose.yml`:
+
+- `api` собирает production TypeScript build и запускает `apps/api/dist/index.js`;
+- `web` собирает Vite production build и отдаёт static files через внутренний nginx;
+- `nginx` является единой публичной точкой входа на `${NGINX_PORT:-80}`;
+- `/api/*` проксируется в `api:8080`;
+- `/` проксируется в `web:80`, где static nginx применяет SPA fallback на `index.html`;
+- backend port наружу не публикуется.
+
+Dev topology:
+
+```text
+browser
+  -> nginx-dev
+  -> web-dev Vite dev server
+  -> /api/* proxy
+  -> api-dev Fastify watch mode
+```
+
+Dev режим использует `docker-compose.dev.yml`:
+
+- `web-dev` запускает Vite dev server внутри контейнера;
+- `api-dev` запускает Fastify API через TypeScript build/watch и `node --watch`;
+- package sources монтируются в контейнеры, а package builds/watch остаются внутри container filesystem;
+- `nginx-dev` использует тот же `infra/nginx/nginx.conf`, а services получают network aliases `web` и `api`;
+- frontend обращается к API через same-origin `/api`.
+
+Volumes:
+
+- `api_tmp` - временная директория API в production-like режиме;
+- `api_dev_tmp` - временная директория API в dev режиме;
+- source bind mounts в dev режиме подключают `apps/web/src`, `apps/api/src` и `packages/*/src`;
+- host `node_modules` не монтируются и не требуются для запуска.
+
+Healthchecks:
+
+- `api` и `api-dev`: `GET /api/v1/health` на internal `:8080`;
+- `web`: static `/healthz`;
+- `nginx` и `nginx-dev`: `GET /api/v1/health` через public nginx route.
+
+Ограничения `MVP-21`:
+
+- HTTPS/certbot не входят в задачу;
+- Kubernetes не входит в задачу;
+- CI/CD и registry publish не входят в задачу;
+- production secrets management не реализуется;
+- базы данных, Redis и queue services не добавляются.
+
 ### `apps/api`
 
 Backend на Node.js + TypeScript + Fastify.

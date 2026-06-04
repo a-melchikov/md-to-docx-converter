@@ -46,20 +46,99 @@ docs/PROJECT_SPEC.md
 
 Этот файл является главным источником требований для проектирования и реализации.
 
-## Monorepo skeleton
+## Локальная разработка без Docker
 
-Текущий skeleton использует `pnpm` и TypeScript strict mode.
+Monorepo использует `pnpm` и TypeScript strict mode.
 
-Команды проверки skeleton:
+Команды проверки:
 
 ```text
 pnpm install
 pnpm -r exec pwd
+pnpm lint
 pnpm typecheck
+pnpm test
 pnpm build
 ```
 
-На этапе skeleton `apps/web`, `apps/api` и `packages/*` содержат только минимальные TypeScript entrypoints. Реализация frontend, backend, Markdown parsing, Style Engine, DOCX generation, preview и Docker/nginx deployment выполняется отдельными задачами из `docs/TASKS.md`.
+Dev-команды пакетов:
+
+```text
+pnpm --filter @md-to-docx/api dev
+pnpm --filter @md-to-docx/web dev
+```
+
+Для обычного запуска приложения предпочтителен Docker Compose, потому что он поднимает frontend, backend и nginx в согласованной топологии.
+
+## Production-like запуск через Docker
+
+Production-like режим собирает frontend и backend внутри контейнеров. Локальный Node.js для запуска не нужен.
+
+```bash
+docker compose build
+docker compose up -d
+docker compose ps
+curl -fsS http://localhost/api/v1/health
+```
+
+Открыть приложение:
+
+```text
+http://localhost
+```
+
+Логи:
+
+```bash
+docker compose logs -f api
+docker compose logs -f nginx
+```
+
+Остановка:
+
+```bash
+docker compose down
+```
+
+## Dev запуск через Docker
+
+Dev режим запускает Vite dev server и Fastify API watch mode внутри контейнеров. Исходники `apps/web`, `apps/api` и `packages/*` монтируются через volumes; локальный Node.js и локальный `pnpm install` на host не требуются.
+
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+
+Открыть приложение:
+
+```text
+http://localhost
+```
+
+Проверить API через nginx:
+
+```bash
+curl -fsS http://localhost/api/v1/health
+```
+
+Логи:
+
+```bash
+docker compose -f docker-compose.dev.yml logs -f api-dev
+docker compose -f docker-compose.dev.yml logs -f web-dev
+docker compose -f docker-compose.dev.yml logs -f nginx-dev
+```
+
+Остановка:
+
+```bash
+docker compose -f docker-compose.dev.yml down
+```
+
+Если порт `80` занят, задайте другой порт для nginx:
+
+```bash
+NGINX_PORT=8088 docker compose -f docker-compose.dev.yml up --build
+```
 
 ## Статус
 
