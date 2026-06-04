@@ -142,6 +142,30 @@ Frontend-приложение на React + TypeScript + Vite.
 - собственную независимую модель конфигурации, расходящуюся с `packages/domain` и `packages/config-schema`;
 - отдельный preview pipeline, который обходит Style Engine.
 
+### Frontend Shell
+
+`MVP-14` создаёт рабочий React/Vite shell приложения без бизнес-логики конвертации и без временного fake pipeline.
+
+Основные зоны UI:
+
+- `Редактор Markdown` - место для будущего editor/upload flow;
+- `Предпросмотр` - page-like область под будущий результат `POST /api/v1/preview/html`;
+- `Настройки` - каркас секций visual settings;
+- `Предупреждения` - место для будущих diagnostics/warnings.
+
+Frontend shell может хранить только локальное UI-состояние: markdown draft, выбранную вкладку настроек и placeholder zoom. Он не вызывает API, не запускает parser/style/docx/html-preview packages в браузере и не строит fake Markdown preview. Read-only значения из `@md-to-docx/config-schema.defaultConfig` допустимы только как отображение текущей базовой конфигурации.
+
+Layout должен оставаться русскоязычным, responsive и доступным с клавиатуры: header, main, section/aside landmarks, доступные имена кнопок, label для editor control и сохранённые focus styles.
+
+Будущие frontend задачи:
+
+- `MVP-15` - Markdown editor/upload;
+- `MVP-16` - visual style settings;
+- `MVP-17` - JSON import/export;
+- `MVP-18` - live preview integration;
+- `MVP-19` - DOCX export integration;
+- `MVP-20` - warnings panel.
+
 ### `apps/api`
 
 Backend на Node.js + TypeScript + Fastify.

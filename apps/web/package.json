@@ -4,13 +4,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "eslint src --max-warnings=0",
+    "lint": "eslint src tests --max-warnings=0",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
-    "build": "tsc -p tsconfig.json"
+    "build": "vite build"
   },
   "dependencies": {
     "@md-to-docx/config-schema": "workspace:*",
-    "@md-to-docx/html-preview": "workspace:*"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.16",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.2",
+    "jsdom": "^29.1.1",
+    "vite": "^8.0.16"
   }
 }
