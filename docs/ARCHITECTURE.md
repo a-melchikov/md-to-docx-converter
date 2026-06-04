@@ -197,6 +197,42 @@ Frontend validation выполняется до замены editor state:
 
 Backend upload endpoint для Markdown не создаётся в MVP-15. В `MVP-18` и `MVP-19` Markdown будет отправляться в API как text payload, а backend всё равно обязан повторно применять input limits и request validation. Live preview и DOCX export реализуются отдельными задачами и используют уже подготовленный frontend Markdown state.
 
+### Visual Style Settings
+
+`MVP-16` добавляет визуальные формы настройки DOCX-стилей поверх общей модели `ConversionConfig` из `@md-to-docx/config-schema`.
+
+Поток данных:
+
+```text
+Visual form input
+  -> config state
+  -> shared ConversionConfig model
+  -> future preview/export flows
+```
+
+Frontend хранит config state в виде:
+
+```text
+ConfigState {
+  config: ConversionConfig
+  isDirty: boolean
+  lastUpdatedAt?: string
+}
+```
+
+Начальное состояние создаётся из `defaultConfig`. Изменения форм применяются immutable update helpers и меняют только соответствующий участок `config`: например, поля страницы обновляют `document.page.margin.*Twip`, настройки заголовков обновляют `styles.heading1..heading6`, настройки списков обновляют первый уровень `numbering`. Секции `version`, `meta`, `input`, `headersFooters`, `advanced` и unrelated styles не должны сбрасываться при изменении визуальных полей.
+
+Пользователь видит понятные единицы:
+
+- page margins, indents, cell padding - миллиметры;
+- font sizes and spacing - points;
+- colors - HEX без `#`;
+- table width - percent or auto.
+
+В `ConversionConfig` сохраняются canonical units schema: `Twip`, `HalfPoint`, `Pct` и HEX strings. Visual settings не создают отдельную config model и не требуют ручного JSON editing для базовой настройки.
+
+JSON import/export остаётся отдельной задачей `MVP-17`. Live preview и DOCX export используют этот же config state в `MVP-18` и `MVP-19`; API calls, Markdown parsing, DOCX generation и fake preview pipeline не входят в `MVP-16`.
+
 ### `apps/api`
 
 Backend на Node.js + TypeScript + Fastify.

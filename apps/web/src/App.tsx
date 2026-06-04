@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
-import { defaultConfig } from "@md-to-docx/config-schema";
+import { useState } from "react";
 
 import { MarkdownEditor } from "./features/markdown-editor/MarkdownEditor.js";
 import { useMarkdownDocument } from "./features/markdown-editor/useMarkdownDocument.js";
+import { StyleSettingsPanel } from "./features/style-settings/StyleSettingsPanel.js";
+import { useConfigState } from "./state/useConfigState.js";
 
 const toolbarActions = [
   "Открыть Markdown",
@@ -11,17 +12,6 @@ const toolbarActions = [
   "Скачать DOCX"
 ] as const;
 
-const settingsTabs = [
-  "Документ",
-  "Заголовки",
-  "Обычный текст",
-  "Код",
-  "Списки",
-  "Таблицы"
-] as const;
-
-type SettingsTab = (typeof settingsTabs)[number];
-
 export function App() {
   const {
     document: markdownDocument,
@@ -29,13 +19,8 @@ export function App() {
     clearContent,
     replaceWithUploadedFile
   } = useMarkdownDocument();
-  const [activeSettingsTab, setActiveSettingsTab] =
-    useState<SettingsTab>("Документ");
+  const { state: configState, updateConfig } = useConfigState();
   const [previewZoom, setPreviewZoom] = useState(100);
-  const settingsDetails = useMemo(
-    () => settingsDetailsFor(activeSettingsTab),
-    [activeSettingsTab]
-  );
 
   return (
     <div className="app-shell">
@@ -114,50 +99,10 @@ export function App() {
           className="panel settings-panel"
           aria-labelledby="settings-heading"
         >
-          <div className="panel-heading">
-            <div>
-              <p className="panel-label">Конфигурация</p>
-              <h2 id="settings-heading">Настройки</h2>
-            </div>
-          </div>
-          <div
-            className="settings-tabs"
-            role="tablist"
-            aria-label="Разделы настроек"
-          >
-            {settingsTabs.map((tab) => (
-              <button
-                aria-controls={`settings-panel-${tab}`}
-                aria-selected={activeSettingsTab === tab}
-                className="settings-tab"
-                id={`settings-tab-${tab}`}
-                key={tab}
-                role="tab"
-                type="button"
-                onClick={() => setActiveSettingsTab(tab)}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-          <div
-            aria-labelledby={`settings-tab-${activeSettingsTab}`}
-            className="settings-readout"
-            id={`settings-panel-${activeSettingsTab}`}
-            role="tabpanel"
-          >
-            <dl>
-              {settingsDetails.map((item) => (
-                <div className="settings-row" key={item.label}>
-                  <dt>{item.label}</dt>
-                  <dd>{item.value}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className="helper-text">
-              Визуальное редактирование настроек будет реализовано в MVP-16.
-            </p>
-          </div>
+          <StyleSettingsPanel
+            configState={configState}
+            updateConfig={updateConfig}
+          />
         </aside>
 
         <section
@@ -182,102 +127,4 @@ export function App() {
       </main>
     </div>
   );
-}
-
-interface SettingsDetail {
-  readonly label: string;
-  readonly value: string;
-}
-
-function settingsDetailsFor(tab: SettingsTab): readonly SettingsDetail[] {
-  switch (tab) {
-    case "Документ":
-      return [
-        {
-          label: "Размер страницы",
-          value: defaultConfig.document.page.size.preset
-        },
-        {
-          label: "Ориентация",
-          value: defaultConfig.document.page.size.orientation
-        },
-        {
-          label: "Поля",
-          value: `${defaultConfig.document.page.margin.topTwip} твип`
-        }
-      ];
-    case "Заголовки":
-      return [
-        {
-          label: "Заголовок 1",
-          value: `${defaultConfig.styles.heading1.run?.sizeHalfPt} полупунктов`
-        },
-        {
-          label: "Заголовок 2",
-          value: `${defaultConfig.styles.heading2.run?.sizeHalfPt} полупунктов`
-        }
-      ];
-    case "Обычный текст":
-      return [
-        {
-          label: "Шрифт",
-          value: defaultConfig.defaults.run.font?.ascii ?? "Times New Roman"
-        },
-        {
-          label: "Размер",
-          value: `${defaultConfig.defaults.run.sizeHalfPt} полупунктов`
-        }
-      ];
-    case "Код":
-      return [
-        {
-          label: "Строчный код",
-          value: defaultConfig.styles.inlineCode.run?.font?.ascii ?? "Courier New"
-        },
-        {
-          label: "Блок кода",
-          value: defaultConfig.styles.codeBlock.run?.font?.ascii ?? "Courier New"
-        }
-      ];
-    case "Списки":
-      return [
-        {
-          label: "Маркированный список",
-          value: defaultConfig.numbering.unordered.levels[0]?.text ?? "•"
-        },
-        {
-          label: "Нумерованный список",
-          value: numberingFormatLabel(
-            defaultConfig.numbering.ordered.levels[0]?.format
-          )
-        }
-      ];
-    case "Таблицы":
-      return [
-        { label: "Ширина", value: `${defaultConfig.defaults.table.widthPct}%` },
-        {
-          label: "Отступ ячейки",
-          value: `${defaultConfig.defaults.table.cellMarginTwip} твип`
-        }
-      ];
-  }
-}
-
-function numberingFormatLabel(format: string | undefined): string {
-  switch (format) {
-    case "decimal":
-      return "десятичная нумерация";
-    case "lowerLetter":
-      return "строчные буквы";
-    case "upperLetter":
-      return "заглавные буквы";
-    case "lowerRoman":
-      return "строчные римские цифры";
-    case "upperRoman":
-      return "заглавные римские цифры";
-    case "bullet":
-      return "маркер";
-    default:
-      return "десятичная нумерация";
-  }
 }
