@@ -17,22 +17,40 @@ export const buildPreviewCss = (): string => `
 
 .md2docx-page {
   width: var(--page-width);
-  min-height: var(--page-height);
+  height: var(--page-height);
   margin: 0 auto 24px auto;
   background: #ffffff;
   box-shadow: 0 12px 34px rgba(15, 23, 42, 0.18);
   transform: scale(var(--preview-zoom));
   transform-origin: top center;
+  overflow: hidden;
 }
 
 .md2docx-page-content {
-  min-height: var(--page-height);
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
   padding: var(--margin-top) var(--margin-right) var(--margin-bottom) var(--margin-left);
   overflow-wrap: anywhere;
 }
 
-.md2docx-preview[data-page-mode="single"] .md2docx-page {
-  margin-bottom: 0;
+.md2docx-heading {
+  line-height: 1.16;
+  margin-block: 0 0.45em;
+}
+
+.md2docx-paragraph {
+  line-height: 1.45;
+}
+
+.md2docx-paragraph,
+.md2docx-code-block,
+.md2docx-blockquote,
+.md2docx-list,
+.md2docx-table,
+.md2docx-image-block,
+.md2docx-thematic-break {
+  margin-block-start: 0;
 }
 
 .md2docx-paragraph,
@@ -57,6 +75,7 @@ export const buildPreviewCss = (): string => `
 }
 
 .md2docx-list {
+  margin-block-start: 0;
   padding-left: 1.5em;
 }
 

@@ -15,7 +15,7 @@ describe("style-to-css", () => {
 
     expect(css).toContain("text-align: left");
     expect(css).toContain("margin-bottom: 10.667px");
-    expect(css).toContain("line-height: 18.4px");
+    expect(css).toContain("line-height: 1.15");
   });
 
   it("maps run properties", () => {

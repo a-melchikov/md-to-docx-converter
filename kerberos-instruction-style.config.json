@@ -1,0 +1,629 @@
+{
+  "version": "1.0.0",
+  "meta": {
+    "name": "Инструкция Kerberos AD style",
+    "description": "Конфигурация оформления, снятая с DOCX: [Инструкция] Настройка аутентификации на портале через AD с Kerberos 19.05.2026.docx. Так как отдельный Word-стиль Title в текущей модели не поддерживается, Markdown # настроен как титульный заголовок, ## как крупный раздел, ### как подраздел.",
+    "locale": "ru-RU",
+    "author": "md-to-docx-converter",
+    "createdAt": "2026-06-05T00:00:00.000Z",
+    "updatedAt": "2026-06-05T00:00:00.000Z"
+  },
+  "input": {
+    "markdownProfile": "commonmark-gfm",
+    "enableHtmlSubset": true,
+    "enableMermaid": false,
+    "htmlPolicy": "warn-and-skip",
+    "onUnsupportedNode": "warn-and-skip",
+    "onInvalidXmlChar": "warn-and-skip"
+  },
+  "document": {
+    "page": {
+      "size": {
+        "preset": "A4",
+        "orientation": "portrait"
+      },
+      "margin": {
+        "topTwip": 1440,
+        "rightTwip": 1440,
+        "bottomTwip": 1440,
+        "leftTwip": 1440
+      }
+    },
+    "columns": {
+      "count": 1,
+      "spacingTwip": 720
+    },
+    "metadata": {
+      "title": "Настройка аутентификации на портале через AD с Kerberos",
+      "subject": "Инструкция",
+      "creator": "md-to-docx-converter",
+      "description": "Оформление по исходному DOCX от 19.05.2026",
+      "language": "ru-RU"
+    }
+  },
+  "defaults": {
+    "paragraph": {
+      "alignment": "left",
+      "spacing": {
+        "beforeTwip": 0,
+        "afterTwip": 0,
+        "lineTwip": 360,
+        "lineRule": "auto"
+      },
+      "indentation": {
+        "leftTwip": 0,
+        "rightTwip": 0,
+        "firstLineTwip": 0,
+        "hangingTwip": 0
+      },
+      "widowControl": true
+    },
+    "run": {
+      "font": {
+        "ascii": "Arial",
+        "hAnsi": "Arial",
+        "cs": "Arial",
+        "eastAsia": "Arial"
+      },
+      "sizeHalfPt": 22,
+      "color": "000000"
+    },
+    "table": {
+      "widthPct": 100,
+      "cellMarginTwip": 120,
+      "border": {
+        "style": "single",
+        "color": "000000",
+        "sizeTwip": 4
+      }
+    },
+    "image": {
+      "maxWidthEmu": 5486400,
+      "preserveAspectRatio": true
+    }
+  },
+  "styles": {
+    "heading1": {
+      "paragraph": {
+        "spacing": {
+          "afterTwip": 80,
+          "lineTwip": 276,
+          "lineRule": "auto"
+        }
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 52,
+        "bold": false,
+        "color": "000000"
+      }
+    },
+    "heading2": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 0,
+          "afterTwip": 200,
+          "lineTwip": 276,
+          "lineRule": "auto"
+        },
+        "keepNext": true,
+        "keepLines": true
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 40,
+        "bold": false,
+        "color": "000000"
+      }
+    },
+    "heading3": {
+      "paragraph": {
+        "spacing": {
+          "lineTwip": 276,
+          "lineRule": "auto"
+        },
+        "keepNext": true,
+        "keepLines": true
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 32,
+        "bold": false,
+        "color": "000000"
+      }
+    },
+    "heading4": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 200,
+          "afterTwip": 40,
+          "lineTwip": 276,
+          "lineRule": "auto"
+        },
+        "keepNext": true,
+        "keepLines": true
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 28,
+        "bold": false,
+        "color": "000000"
+      }
+    },
+    "heading5": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 200,
+          "afterTwip": 0,
+          "lineTwip": 276,
+          "lineRule": "auto"
+        },
+        "keepNext": true,
+        "keepLines": true
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 22,
+        "bold": false,
+        "color": "000000"
+      }
+    },
+    "heading6": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 200,
+          "afterTwip": 0,
+          "lineTwip": 276,
+          "lineRule": "auto"
+        },
+        "keepNext": true,
+        "keepLines": true
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 22,
+        "bold": false,
+        "italic": true,
+        "color": "000000"
+      }
+    },
+    "paragraph": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 0,
+          "afterTwip": 0,
+          "lineTwip": 360,
+          "lineRule": "auto"
+        },
+        "indentation": {
+          "leftTwip": 0,
+          "rightTwip": 0,
+          "firstLineTwip": 0,
+          "hangingTwip": 0
+        }
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 22,
+        "color": "000000"
+      }
+    },
+    "blockquote": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 120,
+          "afterTwip": 120,
+          "lineTwip": 360,
+          "lineRule": "auto"
+        },
+        "indentation": {
+          "leftTwip": 360,
+          "firstLineTwip": 0
+        }
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 22,
+        "color": "000000"
+      },
+      "border": {
+        "style": "single",
+        "color": "808080",
+        "sizeTwip": 4
+      }
+    },
+    "inlineCode": {
+      "run": {
+        "font": {
+          "ascii": "Courier New",
+          "hAnsi": "Courier New",
+          "cs": "Courier New",
+          "eastAsia": "Courier New"
+        },
+        "sizeHalfPt": 22,
+        "color": "000000"
+      }
+    },
+    "codeBlock": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 0,
+          "afterTwip": 0,
+          "lineTwip": 276,
+          "lineRule": "auto"
+        },
+        "indentation": {
+          "leftTwip": 0,
+          "rightTwip": 0,
+          "firstLineTwip": 0
+        }
+      },
+      "run": {
+        "font": {
+          "ascii": "Courier New",
+          "hAnsi": "Courier New",
+          "cs": "Courier New",
+          "eastAsia": "Courier New"
+        },
+        "sizeHalfPt": 22,
+        "color": "000000"
+      }
+    },
+    "link": {
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 22,
+        "color": "000000",
+        "underline": "none"
+      }
+    },
+    "table": {
+      "table": {
+        "widthPct": 100,
+        "cellMarginTwip": 120,
+        "border": {
+          "style": "single",
+          "color": "000000",
+          "sizeTwip": 4
+        }
+      }
+    },
+    "tableHeader": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 0,
+          "afterTwip": 0,
+          "lineTwip": 360,
+          "lineRule": "auto"
+        }
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 22,
+        "bold": true,
+        "color": "000000"
+      },
+      "shading": {
+        "fill": "EDEDED"
+      }
+    },
+    "tableCell": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 0,
+          "afterTwip": 0,
+          "lineTwip": 360,
+          "lineRule": "auto"
+        }
+      },
+      "run": {
+        "font": {
+          "ascii": "Arial",
+          "hAnsi": "Arial",
+          "cs": "Arial",
+          "eastAsia": "Arial"
+        },
+        "sizeHalfPt": 22,
+        "color": "000000"
+      }
+    },
+    "orderedList": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 0,
+          "afterTwip": 0,
+          "lineTwip": 360,
+          "lineRule": "auto"
+        }
+      },
+      "run": {
+        "font": {
+          "ascii": "Courier New",
+          "hAnsi": "Courier New",
+          "cs": "Courier New",
+          "eastAsia": "Courier New"
+        },
+        "sizeHalfPt": 22,
+        "color": "000000"
+      }
+    },
+    "unorderedList": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 0,
+          "afterTwip": 0,
+          "lineTwip": 360,
+          "lineRule": "auto"
+        }
+      },
+      "run": {
+        "font": {
+          "ascii": "Courier New",
+          "hAnsi": "Courier New",
+          "cs": "Courier New",
+          "eastAsia": "Courier New"
+        },
+        "sizeHalfPt": 22,
+        "color": "000000"
+      }
+    },
+    "listItem": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 0,
+          "afterTwip": 0,
+          "lineTwip": 360,
+          "lineRule": "auto"
+        },
+        "indentation": {
+          "leftTwip": 720,
+          "hangingTwip": 360
+        }
+      },
+      "run": {
+        "font": {
+          "ascii": "Courier New",
+          "hAnsi": "Courier New",
+          "cs": "Courier New",
+          "eastAsia": "Courier New"
+        },
+        "sizeHalfPt": 22,
+        "color": "000000"
+      }
+    },
+    "image": {
+      "image": {
+        "maxWidthEmu": 5486400,
+        "preserveAspectRatio": true
+      }
+    },
+    "thematicBreak": {
+      "paragraph": {
+        "spacing": {
+          "beforeTwip": 120,
+          "afterTwip": 120,
+          "lineTwip": 360,
+          "lineRule": "auto"
+        }
+      },
+      "border": {
+        "style": "single",
+        "color": "808080",
+        "sizeTwip": 4
+      }
+    }
+  },
+  "numbering": {
+    "unordered": {
+      "levels": [
+        {
+          "level": 0,
+          "format": "bullet",
+          "text": "•",
+          "leftTwip": 720,
+          "hangingTwip": 360
+        },
+        {
+          "level": 1,
+          "format": "bullet",
+          "text": "○",
+          "leftTwip": 1440,
+          "hangingTwip": 360
+        },
+        {
+          "level": 2,
+          "format": "bullet",
+          "text": "▪",
+          "leftTwip": 2160,
+          "hangingTwip": 360
+        },
+        {
+          "level": 3,
+          "format": "bullet",
+          "text": "•",
+          "leftTwip": 2880,
+          "hangingTwip": 360
+        },
+        {
+          "level": 4,
+          "format": "bullet",
+          "text": "○",
+          "leftTwip": 3600,
+          "hangingTwip": 360
+        },
+        {
+          "level": 5,
+          "format": "bullet",
+          "text": "▪",
+          "leftTwip": 4320,
+          "hangingTwip": 360
+        },
+        {
+          "level": 6,
+          "format": "bullet",
+          "text": "•",
+          "leftTwip": 5040,
+          "hangingTwip": 360
+        },
+        {
+          "level": 7,
+          "format": "bullet",
+          "text": "○",
+          "leftTwip": 5760,
+          "hangingTwip": 360
+        },
+        {
+          "level": 8,
+          "format": "bullet",
+          "text": "▪",
+          "leftTwip": 6480,
+          "hangingTwip": 360
+        }
+      ]
+    },
+    "ordered": {
+      "levels": [
+        {
+          "level": 0,
+          "format": "decimal",
+          "text": "%1.",
+          "start": 1,
+          "leftTwip": 720,
+          "hangingTwip": 360
+        },
+        {
+          "level": 1,
+          "format": "decimal",
+          "text": "%2.",
+          "start": 1,
+          "leftTwip": 1440,
+          "hangingTwip": 360
+        },
+        {
+          "level": 2,
+          "format": "decimal",
+          "text": "%3.",
+          "start": 1,
+          "leftTwip": 2160,
+          "hangingTwip": 360
+        },
+        {
+          "level": 3,
+          "format": "decimal",
+          "text": "%4.",
+          "start": 1,
+          "leftTwip": 2880,
+          "hangingTwip": 360
+        },
+        {
+          "level": 4,
+          "format": "decimal",
+          "text": "%5.",
+          "start": 1,
+          "leftTwip": 3600,
+          "hangingTwip": 360
+        },
+        {
+          "level": 5,
+          "format": "decimal",
+          "text": "%6.",
+          "start": 1,
+          "leftTwip": 4320,
+          "hangingTwip": 360
+        },
+        {
+          "level": 6,
+          "format": "decimal",
+          "text": "%7.",
+          "start": 1,
+          "leftTwip": 5040,
+          "hangingTwip": 360
+        },
+        {
+          "level": 7,
+          "format": "decimal",
+          "text": "%8.",
+          "start": 1,
+          "leftTwip": 5760,
+          "hangingTwip": 360
+        },
+        {
+          "level": 8,
+          "format": "decimal",
+          "text": "%9.",
+          "start": 1,
+          "leftTwip": 6480,
+          "hangingTwip": 360
+        }
+      ]
+    }
+  },
+  "headersFooters": {
+    "enabled": false,
+    "defaultHeader": {
+      "enabled": false,
+      "blocks": []
+    },
+    "defaultFooter": {
+      "enabled": false,
+      "blocks": []
+    },
+    "pageNumberPlaceholderPolicy": "disabled"
+  },
+  "advanced": {
+    "emitBookmarks": false,
+    "emitComments": false,
+    "trackRevisions": false,
+    "ooxmlOverrides": {}
+  }
+}

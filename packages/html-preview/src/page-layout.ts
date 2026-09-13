@@ -8,6 +8,19 @@ export interface PageLayout {
   readonly margin: ResolvedPageMargin;
 }
 
+export interface PageMetrics {
+  readonly pageWidthPx: number;
+  readonly pageHeightPx: number;
+  readonly contentWidthPx: number;
+  readonly contentHeightPx: number;
+  readonly margin: {
+    readonly topPx: number;
+    readonly rightPx: number;
+    readonly bottomPx: number;
+    readonly leftPx: number;
+  };
+}
+
 const pageSizesTwip = {
   A4: { widthTwip: 11906, heightTwip: 16838 },
   A3: { widthTwip: 16838, heightTwip: 23811 },
@@ -63,6 +76,27 @@ export const twipToPx = (twip: number): number => twip / 15;
 export const emuToPx = (emu: number): number => emu / 9525;
 
 export const halfPointToPt = (halfPoint: number): number => halfPoint / 2;
+
+export const ptToPx = (pt: number): number => (pt * 96) / 72;
+
+export const resolvePageMetrics = (layout: PageLayout): PageMetrics => {
+  const pageWidthPx = twipToPx(layout.widthTwip);
+  const pageHeightPx = twipToPx(layout.heightTwip);
+  const margin = {
+    topPx: twipToPx(layout.margin.topTwip),
+    rightPx: twipToPx(layout.margin.rightTwip),
+    bottomPx: twipToPx(layout.margin.bottomTwip),
+    leftPx: twipToPx(layout.margin.leftTwip)
+  };
+
+  return {
+    pageWidthPx,
+    pageHeightPx,
+    contentWidthPx: Math.max(1, pageWidthPx - margin.leftPx - margin.rightPx),
+    contentHeightPx: Math.max(1, pageHeightPx - margin.topPx - margin.bottomPx),
+    margin
+  };
+};
 
 export const cssPx = (value: number): string => `${roundCss(value)}px`;
 

@@ -17,12 +17,6 @@ import { PreviewPanel } from "./features/preview/PreviewPanel.js";
 import { StyleSettingsPanel } from "./features/style-settings/StyleSettingsPanel.js";
 import { useConfigState } from "./state/useConfigState.js";
 
-const toolbarActions = [
-  "Открыть Markdown",
-  "Импорт настроек",
-  "Экспорт настроек"
-] as const;
-
 export function App() {
   const {
     document: markdownDocument,
@@ -34,6 +28,7 @@ export function App() {
   const [previewZoom, setPreviewZoom] = useState(100);
   const [isInputPanelVisible, setIsInputPanelVisible] = useState(true);
   const [isWarningsPanelVisible, setIsWarningsPanelVisible] = useState(true);
+  const [isPanelsMenuOpen, setIsPanelsMenuOpen] = useState(false);
   const [previewDiagnostics, setPreviewDiagnostics] = useState<
     readonly Diagnostic[]
   >([]);
@@ -122,43 +117,71 @@ export function App() {
           <h1>MD → DOCX</h1>
           <p className="app-description">Конвертация Markdown в DOCX</p>
         </div>
-        <div className="layout-actions" aria-label="Панели рабочего пространства">
+        <div className="layout-menu">
           <button
-            aria-controls="input-panel"
-            aria-expanded={isInputPanelVisible}
-            className="secondary-button"
+            aria-controls="panels-menu"
+            aria-expanded={isPanelsMenuOpen}
+            aria-label="Открыть меню панелей"
+            className="icon-button panels-menu-trigger"
             type="button"
-            onClick={() => setIsInputPanelVisible((value) => !value)}
+            onClick={() => setIsPanelsMenuOpen((value) => !value)}
           >
-            {isInputPanelVisible ? "Скрыть панель ввода" : "Показать панель ввода"}
+            <span aria-hidden="true">☰</span>
+            <span className="visually-hidden">Панели</span>
           </button>
-          <button
-            aria-controls="warnings-panel"
-            aria-expanded={isWarningsPanelVisible}
-            className="secondary-button"
-            type="button"
-            onClick={() => setIsWarningsPanelVisible((value) => !value)}
-          >
-            {isWarningsPanelVisible ? "Скрыть предупреждения" : "Показать предупреждения"}
-          </button>
-          {!isWarningsPanelVisible && diagnosticSummary.total > 0 ? (
-            <span className="collapsed-diagnostics-indicator" role="status">
-              {compactDiagnosticsLabel(diagnosticSummary)}
-            </span>
+
+          {isPanelsMenuOpen ? (
+            <div
+              className="panels-popover"
+              id="panels-menu"
+              role="menu"
+              aria-label="Панели рабочего пространства"
+            >
+              <button
+                aria-controls="input-panel"
+                aria-expanded={isInputPanelVisible}
+                role="menuitem"
+                type="button"
+                onClick={() => setIsInputPanelVisible((value) => !value)}
+              >
+                <span>Панель ввода</span>
+                <span>{isInputPanelVisible ? "Скрыть" : "Показать"}</span>
+              </button>
+              <button
+                aria-controls="warnings-panel"
+                aria-expanded={isWarningsPanelVisible}
+                role="menuitem"
+                type="button"
+                onClick={() => setIsWarningsPanelVisible((value) => !value)}
+              >
+                <span>Предупреждения</span>
+                <span>{isWarningsPanelVisible ? "Скрыть" : "Показать"}</span>
+              </button>
+            </div>
           ) : null}
         </div>
+
+        {!isWarningsPanelVisible && diagnosticSummary.total > 0 ? (
+          <span className="collapsed-diagnostics-indicator" role="status">
+            {compactDiagnosticsLabel(diagnosticSummary)}
+          </span>
+        ) : null}
+
         <nav className="app-actions" aria-label="Действия с документом">
-          {toolbarActions.map((action) => (
-            <button
-              className="action-button"
-              disabled
-              key={action}
-              title="Будет реализовано в следующих задачах"
-              type="button"
+          <details className="secondary-actions-menu">
+            <summary
+              aria-label="Дополнительные действия"
+              className="icon-button secondary-actions-trigger"
+              role="button"
             >
-              {action}
-            </button>
-          ))}
+              <span aria-hidden="true">⋯</span>
+            </summary>
+            <div className="secondary-actions-list">
+              <button disabled type="button">Открыть Markdown</button>
+              <button disabled type="button">Импорт настроек</button>
+              <button disabled type="button">Экспорт настроек</button>
+            </div>
+          </details>
           <DocxExportControls
             config={configState.config}
             markdownDocument={markdownDocument}
@@ -214,10 +237,6 @@ export function App() {
             zoomPercent={previewZoom}
             onDiagnosticsChange={setPreviewDiagnostics}
             onZoomChange={setPreviewZoom}
-            onToggleInputPanel={() => setIsInputPanelVisible((value) => !value)}
-            onToggleWarningsPanel={() => setIsWarningsPanelVisible((value) => !value)}
-            inputPanelVisible={isInputPanelVisible}
-            warningsPanelVisible={isWarningsPanelVisible}
           />
         </section>
 

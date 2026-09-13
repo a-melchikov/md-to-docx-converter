@@ -27,14 +27,25 @@ export const renderHtmlPreview = (
   const layout = resolvePageLayout(input.document, diagnostics);
 
   addFastModeDiagnostic(context);
-  const html = buildHtml(input.document, layout, options, css, context);
+  const rendered = buildHtml(input.document, layout, options, css, context);
+
+  if (rendered.pageCountApproximation > 1) {
+    diagnostics.push(
+      createPreviewDiagnostic({
+        severity: "warning",
+        code: "preview.fidelity.pageBreakApproximation",
+        message: "Разбиение на страницы является приблизительным.",
+        metadata: { pageCountApproximation: rendered.pageCountApproximation }
+      })
+    );
+  }
 
   return {
-    html,
+    html: rendered.html,
     css,
     diagnostics,
     metadata: {
-      pageCountApproximation: 1,
+      pageCountApproximation: rendered.pageCountApproximation,
       fidelity: "fast-preview"
     }
   };

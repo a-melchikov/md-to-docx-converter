@@ -1,5 +1,7 @@
 import { defaultConfig, type ConversionConfig } from "@md-to-docx/config-schema";
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { MarkdownDocumentState } from "../../markdown-editor/markdown-document-state.js";
@@ -91,10 +93,25 @@ describe("PreviewPanel", () => {
     expect(screen.getByText("Быстрый предпросмотр")).toBeInTheDocument();
   });
 
-  it("renders paginated preview toolbar with navigation and mode controls", async () => {
+  it("does not render duplicated layout panel controls in preview toolbar", async () => {
+    mockSuccessfulPreview();
+    renderPreview();
+
+    await advancePreviewDebounce();
+
+    expect(
+      screen.queryByRole("button", { name: /панель ввода из предпросмотра/u })
+    ).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: /предупреждения из предпросмотра/u })
+    ).toBeNull();
+  });
+
+  it("renders paginated preview toolbar with navigation controls", async () => {
     mockSuccessfulPreview({
       html:
-        '<div class="md2docx-preview"><div class="md2docx-page">Страница 1</div><div class="md2docx-page">Страница 2</div></div>'
+        '<div class="md2docx-preview"><div class="md2docx-page"><div class="md2docx-page-content">Страница 1</div></div><div class="md2docx-page"><div class="md2docx-page-content">Страница 2</div></div></div>',
+      metadata: { pageCountApproximation: 2, fidelity: "fast-preview" }
     });
     renderPreview();
 
@@ -103,11 +120,8 @@ describe("PreviewPanel", () => {
     expect(
       screen.getByRole("heading", { name: "Предпросмотр DOCX" })
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Все страницы" })).toHaveAttribute(
-      "aria-pressed",
-      "true"
-    );
-    expect(screen.getByRole("button", { name: "Одна страница" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Все страницы" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Одна страница" })).toBeNull();
     expect(screen.getByText(hasText("Страница 1 из 2"))).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Предыдущая страница" })
@@ -117,23 +131,29 @@ describe("PreviewPanel", () => {
     ).toBeEnabled();
   });
 
-  it("supports single page navigation without changing zoom", async () => {
+  it("does not shrink resolved DOCX page width in the web preview wrapper", () => {
+    const css = readFileSync(
+      join(process.cwd(), "src/styles.css"),
+      "utf8"
+    );
+
+    expect(css).toContain("width: var(--page-width, 794px)");
+    expect(css).not.toContain("width: min(100%, var(--page-width");
+  });
+
+  it("supports page navigation without changing zoom", async () => {
     const onZoomChange = vi.fn();
     mockSuccessfulPreview({
       html:
-        '<div class="md2docx-preview"><div class="md2docx-page">Страница 1</div><div class="md2docx-page">Страница 2</div></div>'
+        '<div class="md2docx-preview"><div class="md2docx-page"><div class="md2docx-page-content">Страница 1</div></div><div class="md2docx-page"><div class="md2docx-page-content">Страница 2</div></div></div>',
+      metadata: { pageCountApproximation: 2, fidelity: "fast-preview" }
     });
     renderPreview({ onZoomChange, zoomPercent: 110 });
 
     await advancePreviewDebounce();
-    fireEvent.click(screen.getByRole("button", { name: "Одна страница" }));
     fireEvent.click(screen.getByRole("button", { name: "Следующая страница" }));
 
     expect(screen.getByText(hasText("Страница 2 из 2"))).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Одна страница" })).toHaveAttribute(
-      "aria-pressed",
-      "true"
-    );
     expect(screen.getByLabelText("Масштаб предпросмотра")).toHaveValue("110");
     expect(onZoomChange).not.toHaveBeenCalled();
   });
@@ -374,6 +394,7 @@ interface PreviewResponseOptions {
   readonly html?: string;
   readonly css?: string;
   readonly diagnostics?: unknown[];
+  readonly metadata?: Record<string, unknown>;
 }
 
 interface PreviewRequestBody {
@@ -450,7 +471,7 @@ function previewResponse(options: PreviewResponseOptions = {}): Response {
         options.html ??
         '<div class="md2docx-preview"><div class="md2docx-page">Текст</div></div>',
       css: options.css ?? ".md2docx-preview { --preview-zoom: 1; }",
-      metadata: { fidelity: "fast-preview" }
+      metadata: options.metadata ?? { fidelity: "fast-preview" }
     },
     diagnostics: options.diagnostics ?? []
   });

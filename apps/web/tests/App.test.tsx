@@ -42,16 +42,12 @@ describe("frontend shell", () => {
     expect(editor.value).toContain("# Заголовок документа");
   });
 
-  it("renders toolbar actions with accessible names", () => {
+  it("keeps secondary actions in a compact menu and DOCX export visible", () => {
     render(<App />);
 
-    for (const name of [
-      "Открыть Markdown",
-      "Импорт настроек",
-      "Экспорт настроек"
-    ]) {
-      expect(screen.getByRole("button", { name })).toBeDisabled();
-    }
+    expect(
+      screen.getByRole("button", { name: "Дополнительные действия" })
+    ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Скачать DOCX" })).toBeEnabled();
   });
 
@@ -135,11 +131,10 @@ describe("frontend shell", () => {
 
     expect(screen.getByText("Рабочее пространство")).toBeInTheDocument();
     expect(
-      screen.getAllByRole("button", { name: "Скрыть панель ввода" })[0]
-    ).toHaveAttribute("aria-expanded", "true");
-    expect(
-      screen.getAllByRole("button", { name: "Скрыть предупреждения" })[0]
-    ).toHaveAttribute("aria-expanded", "true");
+      screen.getByRole("button", { name: "Открыть меню панелей" })
+    ).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("button", { name: "Скрыть панель ввода" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Скрыть предупреждения" })).toBeNull();
     expect(
       screen.getByRole("heading", { name: "Предпросмотр DOCX" })
     ).toBeInTheDocument();
@@ -151,14 +146,15 @@ describe("frontend shell", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "Markdown-текст" }), {
       target: { value: "# Текст сохраняется" }
     });
-    fireEvent.click(screen.getAllByRole("button", { name: "Скрыть панель ввода" })[0]!);
+    fireEvent.click(screen.getByRole("button", { name: "Открыть меню панелей" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /Панель ввода/u }));
 
     expect(screen.queryByRole("textbox", { name: "Markdown-текст" })).toBeNull();
     expect(
       screen.getByRole("region", { name: "HTML предпросмотр документа" })
     ).toBeInTheDocument();
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Показать панель ввода" })[0]!);
+    fireEvent.click(screen.getByRole("menuitem", { name: /Панель ввода/u }));
 
     expect(screen.getByRole("textbox", { name: "Markdown-текст" })).toHaveValue(
       "# Текст сохраняется"
@@ -188,11 +184,12 @@ describe("frontend shell", () => {
       ).length
     ).toBeGreaterThan(0);
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Скрыть предупреждения" })[0]!);
+    fireEvent.click(screen.getByRole("button", { name: "Открыть меню панелей" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /Предупреждения/u }));
 
     expect(screen.getAllByText("1 ошибка").length).toBeGreaterThan(0);
     expect(
-      screen.getAllByRole("button", { name: "Показать предупреждения" })[0]
+      screen.getByRole("menuitem", { name: /Предупреждения/u })
     ).toHaveAttribute("aria-expanded", "false");
   });
 });

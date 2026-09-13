@@ -27,7 +27,10 @@ export const paragraphStyleToCss = (style: ResolvedStyleSet): string =>
     "line-height":
       style.paragraph?.spacing?.lineTwip === undefined
         ? undefined
-        : cssPx(twipToPx(style.paragraph.spacing.lineTwip)),
+        : lineHeightToCss(
+            style.paragraph.spacing.lineTwip,
+            style.paragraph.spacing.lineRule
+          ),
     "margin-left":
       style.paragraph?.indentation?.leftTwip === undefined
         ? undefined
@@ -158,6 +161,14 @@ const textIndent = (style: ResolvedStyleSet): string | undefined => {
 
   return undefined;
 };
+
+const lineHeightToCss = (
+  lineTwip: number,
+  lineRule: "auto" | "exact" | "atLeast" | undefined
+): string =>
+  lineRule === "auto" || lineRule === undefined
+    ? String(Math.round((lineTwip / 240) * 1000) / 1000)
+    : cssPx(twipToPx(lineTwip));
 
 const fontFamily = (run: ResolvedRunProperties | undefined): string | undefined => {
   const font = run?.font?.ascii ?? run?.font?.hAnsi ?? run?.font?.cs ?? run?.font?.eastAsia;

@@ -1,7 +1,7 @@
 import type { ConversionConfig } from "@md-to-docx/config-schema";
 import type { Diagnostic } from "@md-to-docx/domain";
 import { pathToString } from "@md-to-docx/domain";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { MarkdownDocumentState } from "../markdown-editor/markdown-document-state.js";
 import { useLivePreview } from "./useLivePreview.js";
@@ -12,10 +12,6 @@ export interface PreviewPanelProps {
   readonly zoomPercent: number;
   readonly onZoomChange: (zoomPercent: number) => void;
   readonly onDiagnosticsChange?: ((diagnostics: readonly Diagnostic[]) => void) | undefined;
-  readonly onToggleInputPanel?: (() => void) | undefined;
-  readonly onToggleWarningsPanel?: (() => void) | undefined;
-  readonly inputPanelVisible?: boolean | undefined;
-  readonly warningsPanelVisible?: boolean | undefined;
 }
 
 export function PreviewPanel({
@@ -23,13 +19,9 @@ export function PreviewPanel({
   config,
   zoomPercent,
   onZoomChange,
-  onDiagnosticsChange,
-  onToggleInputPanel,
-  onToggleWarningsPanel,
-  inputPanelVisible = true,
-  warningsPanelVisible = true
+  onDiagnosticsChange
 }: PreviewPanelProps) {
-  const [pageMode, setPageMode] = useState<"single" | "all">("all");
+  const previewStageRef = useRef<HTMLDivElement | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const options = useMemo(
     () => ({
@@ -53,26 +45,94 @@ export function PreviewPanel({
     () => pageCountFromPreviewHtml(preview.html),
     [preview.html]
   );
-  const totalPagesLabel =
-    preview.metadata?.pageCountApproximation ?? pageCount;
+  const totalPagesLabel = Math.max(
+    pageCount,
+    preview.metadata?.pageCountApproximation ?? pageCount
+  );
   const boundedCurrentPage = Math.min(currentPage, pageCount);
+  const hasApproximatePagination = preview.diagnostics.some(
+    (diagnostic) => diagnostic.code === "preview.fidelity.pageBreakApproximation"
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+    const stage = previewStageRef.current;
+    if (!stage) {
+      return;
+    }
+
+    if (typeof stage.scrollTo === "function") {
+      stage.scrollTo({ top: 0 });
+    } else {
+      stage.scrollTop = 0;
+    }
+  }, [preview.html]);
 
   useEffect(() => {
     setCurrentPage((page) => Math.min(page, pageCount));
   }, [pageCount]);
 
+  const scrollToPage = useCallback((pageNumber: number) => {
+    const stage = previewStageRef.current;
+    if (!stage) {
+      return;
+    }
+
+    const pages = pageElementsFromStage(stage);
+    const targetPage = pages[pageNumber - 1];
+    if (!targetPage) {
+      return;
+    }
+
+    const stageRect = stage.getBoundingClientRect();
+    const pageRect = targetPage.getBoundingClientRect();
+    const targetTop = stage.scrollTop + pageRect.top - stageRect.top - 24;
+
+    setCurrentPage(pageNumber);
+    if (typeof stage.scrollTo === "function") {
+      stage.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: "smooth"
+      });
+    } else {
+      stage.scrollTop = Math.max(0, targetTop);
+    }
+  }, []);
+
+  const handlePreviewScroll = useCallback(() => {
+    const stage = previewStageRef.current;
+    if (!stage) {
+      return;
+    }
+
+    const pages = pageElementsFromStage(stage);
+    if (pages.length <= 1) {
+      setCurrentPage(1);
+      return;
+    }
+
+    const stageRect = stage.getBoundingClientRect();
+    const stageCenter = stageRect.top + stageRect.height / 2;
+    let closestPage = 1;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    pages.forEach((page, index) => {
+      const pageRect = page.getBoundingClientRect();
+      const pageCenter = pageRect.top + pageRect.height / 2;
+      const distance = Math.abs(pageCenter - stageCenter);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestPage = index + 1;
+      }
+    });
+
+    setCurrentPage(closestPage);
+  }, []);
+
   const fidelityLabel =
     preview.metadata?.fidelity === "fast-preview"
       ? "Быстрый предпросмотр"
       : "Предпросмотр";
-  const singlePageStyle = useMemo(
-    () =>
-      pageMode === "single"
-        ? `.preview-stage.is-single-page .md2docx-page { display: none; }
-.preview-stage.is-single-page .md2docx-page:nth-of-type(${boundedCurrentPage}) { display: block; }`
-        : "",
-    [boundedCurrentPage, pageMode]
-  );
 
   return (
     <>
@@ -84,57 +144,15 @@ export function PreviewPanel({
         </div>
 
         <div className="preview-controls" aria-label="Управление предпросмотром">
-          <button
-            aria-label={
-              inputPanelVisible
-                ? "Скрыть панель ввода из предпросмотра"
-                : "Показать панель ввода из предпросмотра"
-            }
-            className="icon-text-button"
-            type="button"
-            onClick={onToggleInputPanel}
-            aria-pressed={!inputPanelVisible}
-          >
-            {inputPanelVisible ? "Ввод: скрыть" : "Ввод: показать"}
-          </button>
-          <button
-            aria-label={
-              warningsPanelVisible
-                ? "Скрыть предупреждения из предпросмотра"
-                : "Показать предупреждения из предпросмотра"
-            }
-            className="icon-text-button"
-            type="button"
-            onClick={onToggleWarningsPanel}
-            aria-pressed={!warningsPanelVisible}
-          >
-            {warningsPanelVisible ? "Ошибки: скрыть" : "Ошибки: показать"}
-          </button>
-
-          <div className="segmented-control" aria-label="Режим страниц">
-            <button
-              aria-pressed={pageMode === "all"}
-              type="button"
-              onClick={() => setPageMode("all")}
-            >
-              Все страницы
-            </button>
-            <button
-              aria-pressed={pageMode === "single"}
-              type="button"
-              onClick={() => setPageMode("single")}
-            >
-              Одна страница
-            </button>
-          </div>
-
           <div className="page-navigation" aria-label="Навигация по страницам">
             <button
               className="icon-button"
               disabled={boundedCurrentPage <= 1}
               type="button"
               aria-label="Предыдущая страница"
-              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              onClick={() => {
+                scrollToPage(Math.max(1, boundedCurrentPage - 1));
+              }}
             >
               ←
             </button>
@@ -146,7 +164,9 @@ export function PreviewPanel({
               disabled={boundedCurrentPage >= pageCount}
               type="button"
               aria-label="Следующая страница"
-              onClick={() => setCurrentPage((page) => Math.min(pageCount, page + 1))}
+              onClick={() => {
+                scrollToPage(Math.min(pageCount, boundedCurrentPage + 1));
+              }}
             >
               →
             </button>
@@ -168,18 +188,14 @@ export function PreviewPanel({
       </div>
 
       <div
+        ref={previewStageRef}
         aria-busy={preview.status === "loading"}
         aria-label="HTML предпросмотр документа"
-        className={[
-          "preview-stage",
-          pageMode === "single" ? "is-single-page" : "is-all-pages"
-        ].join(" ")}
+        className="preview-stage"
         role="region"
+        onScroll={handlePreviewScroll}
       >
         {preview.css ? <style data-testid="preview-css">{preview.css}</style> : null}
-        {singlePageStyle ? (
-          <style data-testid="preview-page-mode-css">{singlePageStyle}</style>
-        ) : null}
         {preview.status === "idle" ? (
           <div className="preview-page">
             <div className="preview-page-content">
@@ -214,7 +230,9 @@ export function PreviewPanel({
 
       <div className="preview-meta">
         <span>Постраничный режим</span>
-        <span>Разбиение на страницы является приблизительным.</span>
+        {hasApproximatePagination ? (
+          <span>Приблизительное разбиение</span>
+        ) : null}
         {preview.updatedAt ? (
           <span>Обновлено: {new Date(preview.updatedAt).toLocaleTimeString("ru-RU")}</span>
         ) : null}
@@ -237,8 +255,22 @@ function pageCountFromPreviewHtml(html: string | undefined): number {
     return 1;
   }
 
-  const matches = html.match(/class=["'][^"']*\bmd2docx-page\b/gu);
-  return Math.max(1, matches?.length ?? 1);
+  let pageCount = 0;
+  const classAttributePattern = /class=["']([^"']*)["']/gu;
+  for (const match of html.matchAll(classAttributePattern)) {
+    const classTokens = match[1]?.split(/\s+/u) ?? [];
+    if (classTokens.includes("md2docx-page")) {
+      pageCount += 1;
+    }
+  }
+
+  return Math.max(1, pageCount);
+}
+
+function pageElementsFromStage(stage: HTMLDivElement): HTMLElement[] {
+  return Array.from(
+    stage.querySelectorAll<HTMLElement>(".preview-html-scope .md2docx-page")
+  );
 }
 
 function PreviewDiagnostics({

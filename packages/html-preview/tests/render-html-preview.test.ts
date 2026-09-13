@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import type { ResolvedBlockNode, ResolvedInlineNode } from "@md-to-docx/domain";
+import type {
+  ResolvedBlockNode,
+  ResolvedDocument,
+  ResolvedInlineNode
+} from "@md-to-docx/domain";
 import { twip } from "@md-to-docx/domain";
 
 import { renderHtmlPreview } from "../src/index.js";
@@ -118,7 +122,96 @@ describe("renderHtmlPreview", () => {
 
     expect(result.html).toContain("--preview-zoom: 1.25");
     expect(result.html).toContain("--margin-top: 96px");
+    expect(result.html).toContain("--content-width: 601.733px");
+    expect(result.html).toContain("--content-height: 930.533px");
     expect(result.html).toContain("data-page-mode=\"single\"");
+  });
+
+  it("uses a fixed page content box for Word-like margins", () => {
+    const result = renderHtmlPreview({
+      document: resolvedDocument([paragraphNode([textNode("Box model")])])
+    });
+
+    expect(result.css).toContain(".md2docx-page-content");
+    expect(result.css).toContain("box-sizing: border-box");
+    expect(result.css).toContain("width: 100%");
+    expect(result.css).toContain("height: 100%");
+    expect(result.css).toContain(
+      "padding: var(--margin-top) var(--margin-right) var(--margin-bottom) var(--margin-left)"
+    );
+  });
+
+  it("maps auto and exact line spacing differently", () => {
+    const exactStyle = {
+      ...baseStyle,
+      paragraph: {
+        ...baseStyle.paragraph,
+        spacing: { ...baseStyle.paragraph?.spacing, lineTwip: twip(240), lineRule: "exact" as const }
+      }
+    };
+    const result = renderHtmlPreview({
+      document: resolvedDocument([
+        paragraphNode([textNode("Auto line")], baseStyle),
+        paragraphNode([textNode("Exact line")], exactStyle)
+      ])
+    });
+
+    expect(result.html).toContain("line-height: 1.15");
+    expect(result.html).toContain("line-height: 16px");
+  });
+
+  it("splits a long document into multiple approximate pages", () => {
+    const result = renderHtmlPreview({
+      document: resolvedDocument(
+        Array.from({ length: 90 }, (_value, index) =>
+          paragraphNode([textNode(`Paragraph ${index + 1} with enough text for preview pagination.`)])
+        )
+      )
+    });
+
+    expect(countOccurrences(result.html, "md2docx-page")).toBeGreaterThan(1);
+    expect(result.metadata.pageCountApproximation).toBeGreaterThan(1);
+    expect(
+      result.diagnostics.some(
+        (diagnostic) => diagnostic.code === "preview.fidelity.pageBreakApproximation"
+      )
+    ).toBe(true);
+  });
+
+  it("uses margins when estimating page count", () => {
+    const blocks = Array.from({ length: 70 }, (_value, index) =>
+      paragraphNode([
+        textNode(`Paragraph ${index + 1} with enough text to make margin changes affect pagination.`)
+      ])
+    );
+    const normalMargins = renderHtmlPreview({
+      document: resolvedDocument(blocks)
+    });
+    const largeMargins = renderHtmlPreview({
+      document: withPageMargins(resolvedDocument(blocks), 2400)
+    });
+
+    expect(largeMargins.metadata.pageCountApproximation).toBeGreaterThanOrEqual(
+      normalMargins.metadata.pageCountApproximation ?? 1
+    );
+  });
+
+  it("starts a new page when a block requests pageBreakBefore", () => {
+    const result = renderHtmlPreview({
+      document: resolvedDocument([
+        paragraphNode([textNode("First page")]),
+        paragraphNode([textNode("Second page")], {
+          ...baseStyle,
+          paragraph: {
+            ...baseStyle.paragraph,
+            pageBreakBefore: true
+          }
+        })
+      ])
+    });
+
+    expect(countOccurrences(result.html, "md2docx-page")).toBe(2);
+    expect(result.metadata.pageCountApproximation).toBe(2);
   });
 
   it("renders custom page fallback diagnostic", () => {
@@ -206,3 +299,32 @@ describe("renderHtmlPreview", () => {
     expect(result.css).toContain(".md2docx-page");
   });
 });
+
+function countOccurrences(value: string, pattern: string): number {
+  if (pattern === "md2docx-page") {
+    return value.match(/class="md2docx-page"/gu)?.length ?? 0;
+  }
+
+  return value.split(pattern).length - 1;
+}
+
+function withPageMargins(
+  document: ResolvedDocument,
+  marginTwip: number
+): ResolvedDocument {
+  return {
+    ...document,
+    properties: {
+      ...document.properties,
+      page: {
+        ...document.properties.page,
+        margin: {
+          topTwip: twip(marginTwip),
+          rightTwip: twip(marginTwip),
+          bottomTwip: twip(marginTwip),
+          leftTwip: twip(marginTwip)
+        }
+      }
+    }
+  };
+}
